@@ -83,6 +83,11 @@ module.exports = function (app, passport) {
     setRedirect({auth: '/'}),
     isAuthenticated,
     dashboard.getBilling);
+  app.get('/account',
+    setRender('dashboard/account'),
+    setRedirect({auth: '/'}),
+    isAuthenticated,
+    dashboard.getAccount);
   app.get('/profile',
     setRender('dashboard/profile'),
     setRedirect({auth: '/'}),
@@ -102,6 +107,10 @@ module.exports = function (app, passport) {
     setRedirect({auth: '/', success: '/billing', failure: '/billing'}),
     isAuthenticated,
     users.postPlan);
+  app.post('/user/account',
+    setRedirect({auth: '/', success: '/account', failure: '/account'}),
+    isAuthenticated,
+    users.postAccount);
   app.post('/user/password',
     setRedirect({auth: '/', success: '/profile', failure: '/profile'}),
     isAuthenticated,

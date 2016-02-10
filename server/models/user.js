@@ -2,6 +2,7 @@ var mongoose = require('mongoose');
 var bcrypt = require('bcrypt-nodejs');
 var crypto = require('crypto');
 var stripeCustomer = require('./plugins/stripe-customer');
+var stripeAccount = require('./plugins/stripe-accounts');
 var secrets = require('../config/secrets');
 var timestamps = require('mongoose-timestamp');
 
@@ -25,6 +26,7 @@ var stripeOptions = secrets.stripeOptions;
 
 userSchema.plugin(timestamps);
 userSchema.plugin(stripeCustomer, stripeOptions);
+userSchema.plugin(stripeAccount, stripeOptions);
 
 /**
  * Hash the password for security.

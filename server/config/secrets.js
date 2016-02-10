@@ -10,8 +10,8 @@ module.exports = {
   },
 
   stripeOptions: {
-    apiKey: process.env.STRIPE_KEY || '',
-    stripePubKey: process.env.STRIPE_PUB_KEY || '',
+    apiKey: process.env.STRIPE_KEY || 'sk_test_gPV7zXKrLSIVOKXJxZIBk0Wj',
+    stripePubKey: process.env.STRIPE_PUB_KEY || 'pk_test_TtP0GremyqcCDrfW0739NJM8',
     defaultPlan: 'free',
     plans: ['free', 'silver', 'gold', 'platinum'],
     planData: {

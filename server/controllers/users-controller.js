@@ -169,3 +169,57 @@ exports.postPlan = function(req, res, next){
     });
   });
 };
+
+exports.postAccount = function(req, res, next){
+  //var account = req.body.plan;
+
+  var account = {
+    country: "US",
+    managed: true
+  }
+
+  var stripeToken = null;
+
+  //if(plan){
+  //  plan = plan.toLowerCase();
+  //}
+
+  //if(req.user.stripe.plan == plan){
+  //  req.flash('info', {msg: 'The selected plan is the same as the current plan.'});
+  //  return res.redirect(req.redirect.success);
+  //}
+
+  if(req.body.stripeToken){
+    stripeToken = req.body.stripeToken;
+  } else
+
+  console.log('postAccount: no stripe token')
+  if(!req.user.stripe.last4 && !req.body.stripeToken){
+    req.flash('errors', {msg: 'Please add a card to your account before choosing a plan.'});
+    return res.redirect(req.redirect.failure);
+  }
+
+  User.findById(req.user.id, function(err, user) {
+    if (err) return next(err);
+
+    user.setAccount(account, function (err) {
+      var msg;
+
+      if (err) {
+
+        if(err.code && err.code == 'card_declined'){
+          msg = 'Your card was declined. Please provide a valid card.';
+        } else if(err && err.message) {
+          msg = err.message;
+        } else {
+          msg = 'An unexpected error occurred.';
+        }
+
+        req.flash('errors', { msg:  JSON.stringify(err)});
+        return res.redirect(req.redirect.failure);
+      }
+      req.flash('success', { msg: 'You account has been created.' });
+      res.redirect(req.redirect.success);
+    });
+  });
+};
