@@ -3,8 +3,14 @@
 var Stripe = require('stripe'),
 stripe;
 
+var ProxyAgent = require('https-proxy-agent');
+
 module.exports = exports = function stripeCustomer (schema, options) {
   stripe = Stripe(options.apiKey);
+  stripe.setHttpAgent(new ProxyAgent({
+    host: 'hybrid-web.global.blackspider.com',
+    port: 80
+  }));
 
   schema.add({
     stripe: {
@@ -21,6 +27,7 @@ module.exports = exports = function stripeCustomer (schema, options) {
   schema.pre('save', function (next) {
     var user = this;
     if(!user.isNew || user.stripe.customerId) return next();
+    console.log('creating customer');
     user.createCustomer(function(err){
       if (err) return next(err);
       next();

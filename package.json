@@ -39,6 +39,7 @@
     "express-session": "*",
     "express-subdomain": "^1.0.1",
     "express-validator": "^2.6.0",
+    "https-proxy-agent": "^1.0.0",
     "lodash": "^2.4.1",
     "middleware-responder": "^1.0.0",
     "mongoose": "^4.2.5",

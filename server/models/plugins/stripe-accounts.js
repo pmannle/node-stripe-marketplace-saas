@@ -3,8 +3,14 @@
 var Stripe = require('stripe'),
 stripe;
 
-module.exports = exports = function stripeAccount (schema, options) {
+var ProxyAgent = require('https-proxy-agent');
+
+module.exports = exports = function stripeCustomer (schema, options) {
   stripe = Stripe(options.apiKey);
+  stripe.setHttpAgent(new ProxyAgent({
+    host: 'hybrid-web.global.blackspider.com',
+    port: 80
+  }));
 
   schema.add({
     account: {
@@ -24,6 +30,7 @@ module.exports = exports = function stripeAccount (schema, options) {
       return next();
     }
 
+    console.log('creating sub-merchant account')
     user.createAccount(function(err){
       if (err) return next(err);
       next();
