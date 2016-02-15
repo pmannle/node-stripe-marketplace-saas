@@ -58,7 +58,8 @@ module.exports = function(passport){
           // edit this portion to accept other properties when creating a user.
           var user = new User({
             email: req.body.email,
-            password: req.body.password // user schema pre save task hashes this password
+            password: req.body.password, // user schema pre save task hashes this password
+            account_type: req.body.accountType
           });
 
           user.save(function(err) {

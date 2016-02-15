@@ -1,7 +1,18 @@
 'use strict';
 
-var User = require('../models/user'),
-plans = User.getPlans();
+var User = require('../models/user');
+var plans = User.getPlans();
+
+var getAccountWithPlans = function () {
+  User.find({'account.plans.0': { $exists: true } }, function(err, plans) {
+    if (err) console.log(err);
+    console.log(plans);
+    return plans;
+  })
+};
+
+var accountsWithPlans = getAccountWithPlans();
+
 
 exports.getHome = function(req, res, next){
   var form = {},
