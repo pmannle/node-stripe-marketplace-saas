@@ -1,7 +1,10 @@
 'use strict';
 
 var User = require('../models/user');
+<<<<<<< HEAD
 var plans = User.getPlans();
+=======
+>>>>>>> e0f44c53a2011f85ac4e86ecd46541d07350fe89
 
 var getAccountWithPlans = function () {
   User.find({'account.plans.0': { $exists: true } }, function(err, plans) {
