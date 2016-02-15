@@ -3,8 +3,11 @@
 var Stripe = require('stripe'),
 stripe;
 
+
 module.exports = exports = function stripeCustomer (schema, options) {
   stripe = Stripe(options.apiKey);
+
+
 
   schema.add({
     stripe: {
@@ -20,7 +23,8 @@ module.exports = exports = function stripeCustomer (schema, options) {
 
   schema.pre('save', function (next) {
     var user = this;
-    if(!user.isNew || user.stripe.customerId) return next();
+    if(!user.isNew || user.stripe.customerId || user.account_type == 'merchant') return next();
+
     user.createCustomer(function(err){
       if (err) return next(err);
       next();
@@ -28,7 +32,24 @@ module.exports = exports = function stripeCustomer (schema, options) {
   });
 
   schema.statics.getPlans = function () {
+    //var user = this;
+    //var plans;
     return options.planData;
+    //////return Users.findWhere({ 'account.plans':  });
+    //console.log('getting plans')
+    ////user.find({'account.plans': { $exists: true } }), function(err, plans) {
+    ////  if (err) console.log(err);
+    ////  plans = plans;
+    ////  console.log(plans);
+    ////}
+    //user.find({email: { $exists: true } }), function(err, plans) {
+    //  if (err) console.log(err);
+    //  plans = plans;
+    //  console.log(plans);
+    //}
+    ////
+    //console.log('got the plans');
+    ////return plans;
   };
 
   schema.methods.createCustomer = function(cb) {
@@ -38,7 +59,6 @@ module.exports = exports = function stripeCustomer (schema, options) {
       email: user.email
     }, function(err, customer){
       if (err) return cb(err);
-
       user.stripe.customerId = customer.id;
       return cb();
     });
@@ -79,21 +99,25 @@ module.exports = exports = function stripeCustomer (schema, options) {
       plan: plan
     };
 
+    // save new customer subscription with sub-merchant account id
     var subscriptionHandler = function(err, subscription) {
       if(err) return cb(err);
 
       user.stripe.plan = plan;
       user.stripe.subscriptionId = subscription.id;
+      user.subMerchantId = subscription.subMerchantId;
       user.save(function(err){
         if (err) return cb(err);
         return cb(null);
       });
     };
 
+    // create customer subscription on stripe attached to sub-merchant
     var createSubscription = function(){
       stripe.customers.createSubscription(
         user.stripe.customerId,
         {plan: plan},
+        {stripe_account: user.subMerchantId},
         subscriptionHandler
       );
     };

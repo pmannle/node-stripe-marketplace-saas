@@ -9,6 +9,7 @@ var timestamps = require('mongoose-timestamp');
 var userSchema = new mongoose.Schema({
   email: { type: String, unique: true, lowercase: true },
   password: String,
+  account_type: String, // customer or merchant
 
   profile: {
     name: { type: String, default: '' },
@@ -21,6 +22,8 @@ var userSchema = new mongoose.Schema({
   resetPasswordToken: String,
   resetPasswordExpires: Date
 });
+
+
 
 var stripeOptions = secrets.stripeOptions;
 
@@ -60,6 +63,8 @@ userSchema.methods.comparePassword = function(candidatePassword, cb) {
     cb(null, isMatch);
   });
 };
+
+
 
 /**
  * Get URL to a user's gravatar.

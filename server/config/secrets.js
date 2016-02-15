@@ -14,7 +14,8 @@ module.exports = {
     stripePubKey: process.env.STRIPE_PUB_KEY || 'pk_test_TtP0GremyqcCDrfW0739NJM8',
     defaultPlan: 'free',
     plans: ['free', 'silver', 'gold', 'platinum'],
-    planData: {
+    planData:
+    {
       'free': {
         name: 'Free',
         price: 0

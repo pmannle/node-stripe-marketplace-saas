@@ -107,18 +107,24 @@ module.exports = function (app, passport) {
     setRedirect({auth: '/', success: '/billing', failure: '/billing'}),
     isAuthenticated,
     users.postPlan);
+  app.post('/user/password',
+      setRedirect({auth: '/', success: '/profile', failure: '/profile'}),
+      isAuthenticated,
+      passwords.postNewPassword);
+  app.post('/user/delete',
+      setRedirect({auth: '/', success: '/'}),
+      isAuthenticated,
+      users.deleteAccount);
+
   app.post('/user/account',
     setRedirect({auth: '/', success: '/account', failure: '/account'}),
     isAuthenticated,
     users.postAccount);
-  app.post('/user/password',
-    setRedirect({auth: '/', success: '/profile', failure: '/profile'}),
-    isAuthenticated,
-    passwords.postNewPassword);
-  app.post('/user/delete',
-    setRedirect({auth: '/', success: '/'}),
-    isAuthenticated,
-    users.deleteAccount);
+  app.post('/user/account/plan',
+      setRedirect({auth: '/', success: '/account', failure: '/account'}),
+      isAuthenticated,
+      users.postAccountPlan);
+
 
   // use this url to receive stripe webhook events
   app.post('/stripe/events',
