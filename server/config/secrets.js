@@ -13,24 +13,12 @@ module.exports = {
     apiKey: process.env.STRIPE_KEY || 'sk_test_gPV7zXKrLSIVOKXJxZIBk0Wj',
     stripePubKey: process.env.STRIPE_PUB_KEY || 'pk_test_TtP0GremyqcCDrfW0739NJM8',
     defaultPlan: 'free',
-    plans: ['free', 'silver', 'gold', 'platinum'],
+    plans: ['free'],
     planData:
     {
       'free': {
         name: 'Free',
-        price: 0
-      },
-      'silver': {
-        name: 'Silver',
-        price: 9
-      },
-      'gold': {
-        name: 'Gold',
-        price: 19
-      },
-      'platinum': {
-        name: 'Platinum',
-        price: 29
+        amount: 0
       }
     }
   },

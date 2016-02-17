@@ -64,10 +64,10 @@ exports.getProfile = function(req, res, next){
     error = errorFlash[0];
   }
 
-  console.log(req.user);
-  console.log(req.render);
-  console.log(form);
-  console.log(plans);
+  //console.log(req.user);
+  //console.log(req.render);
+  //console.log(form);
+  //console.log(plans);
 
   res.render(req.render, {user: req.user, form: form, error: error, plans: plans});
 };

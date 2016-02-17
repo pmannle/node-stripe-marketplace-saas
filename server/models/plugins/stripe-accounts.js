@@ -19,7 +19,8 @@ module.exports = exports = function stripeAccount (schema, options) {
     metadata : {},
     name : String,
     statement_descriptor : String,
-    trial_period_days : String
+    trial_period_days : String,
+    accountId: String
   });
 
   schema.add({
@@ -82,6 +83,8 @@ module.exports = exports = function stripeAccount (schema, options) {
 
       if (err) return cb(err);
 
+      // add accountId to plan object so we can assign it later to customer subscriptions
+      plan['accountId'] = user.account.accountId;
       user.account.plans.push(plan)
 
       user.save(function(err){

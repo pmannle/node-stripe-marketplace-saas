@@ -109,6 +109,8 @@ exports.postBilling = function (req, res, next) {
     User.findById(req.user.id, function (err, user) {
         if (err) return next(err);
 
+        // use for setting cards on platform account
+        /*
         user.setCard(stripeToken, function (err) {
             if (err) {
                 if (err.code && err.code == 'card_declined') {
@@ -121,16 +123,35 @@ exports.postBilling = function (req, res, next) {
             req.flash('success', {msg: 'Billing has been updated.'});
             res.redirect(req.redirect.success);
         });
+        */
+
+        // set customer and card for user on connected account
+        user.setSubscriptionCard(stripeToken, function (err) {
+            if (err) {
+                if (err.code && err.code == 'card_declined') {
+                    req.flash('errors', {msg: 'Your card was declined. Please provide a valid card.'});
+                    return res.redirect(req.redirect.failure);
+                }
+                req.flash('errors', {msg: 'An unexpected error occurred.'});
+                return res.redirect(req.redirect.failure);
+            }
+            req.flash('success', {msg: 'Subscription billing has been updated.'});
+
+            user.setSubscriptionCard
+            res.redirect(req.redirect.success);
+        });
+
+
     });
 };
 
 exports.postPlan = function (req, res, next) {
-    var plan = req.body.plan;
-    var stripeToken = null;
 
-    if (plan) {
-        plan = plan.toLowerCase();
-    }
+    var plan = req.body.plan;
+
+    console.log('post plan: ' + plan);
+
+    var stripeToken = null;
 
     if (req.user.stripe.plan == plan) {
         req.flash('info', {msg: 'The selected plan is the same as the current plan.'});
@@ -139,6 +160,7 @@ exports.postPlan = function (req, res, next) {
 
     if (req.body.stripeToken) {
         stripeToken = req.body.stripeToken;
+        console.log('stripe token: ' + stripeToken)
     }
 
     if (!req.user.stripe.last4 && !req.body.stripeToken) {
@@ -153,18 +175,10 @@ exports.postPlan = function (req, res, next) {
             var msg;
 
             if (err) {
-                if (err.code && err.code == 'card_declined') {
-                    msg = 'Your card was declined. Please provide a valid card.';
-                } else if (err && err.message) {
-                    msg = err.message;
-                } else {
-                    msg = 'An unexpected error occurred.';
-                }
-
-                req.flash('errors', {msg: msg});
+                req.flash('errors', {msg: JSON.stringify(err)});
                 return res.redirect(req.redirect.failure);
             }
-            req.flash('success', {msg: 'Plan has been updated.'});
+            req.flash('success', {msg: 'Your subscription has been updated.'});
             res.redirect(req.redirect.success);
         });
     });
@@ -218,8 +232,10 @@ exports.postAccountPlan = function (req, res, next) {
 
     if (req.body.plan_name && req.body.plan_amount) {
 
-        console.log('creating plan: ' + req.body.plan_name)
-        var id = req.body.plan_name.toLowerCase();
+
+        var id = req.body.plan_name.toLowerCase().replace(/\s/g, "");
+
+        console.log('creating plan: ' + id)
 
         var plan = {
             amount: req.body.plan_amount,            // plan.amount,            // 2000,
@@ -242,7 +258,7 @@ exports.postAccountPlan = function (req, res, next) {
                     //next(err);
                 }
 
-                req.flash('success', {msg: 'You plane has been created.'});
+                req.flash('success', {msg: 'Your plan has been created.'});
                 res.redirect(req.redirect.success);
             });
         });
@@ -255,3 +271,4 @@ exports.postAccountPlan = function (req, res, next) {
 
 
 };
+

@@ -18,8 +18,8 @@
           {% for plan in plans %}
             <div class="radio">
               <label>
-                <input type="radio" {% if user.stripe.plan == loop.key %}checked{% endif %} name="plan" value="{{loop.key}}" data-toggle="radio">
-                <span>{{plan.name}} - ${{plan.price}}</span>
+                <input type="radio" {% if user.stripe.plan == loop.key %}checked{% endif %} name="plan" value='{ "accountId": "{{plan.accountId}}", "id": "{{plan.id}}" }' data-toggle="radio">
+                <span>{{plan.name}} - ${{plan.amount}}</span>
               </label>
             </div>
           {% endfor %}
@@ -66,6 +66,7 @@
       {% endif %}
       <div class="form-group">
         <div class="col-sm-offset-3 col-sm-4">
+          <input type="hidden" id="accountId" name="accountId" value="">
           <button type="submit" class="btn btn-primary">Update Plan</button>
         </div>
       </div>
@@ -113,6 +114,7 @@
       </div>
       <div class="form-group">
         <div class="col-sm-offset-3 col-sm-4">
+          <input type="hidden" id="accountId" name="accountId" value="">
           <button type="submit" class="btn btn-primary">Update Card</button>
         </div>
       </div>
