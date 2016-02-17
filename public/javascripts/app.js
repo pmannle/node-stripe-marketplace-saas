@@ -3,7 +3,10 @@ jQuery(function($) {
   var cardWrapper = $('#cardWrapper'),
   cardForm = $('#cardForm'),
   formError = $('#cardFormError'),
-  cardFormBtn = cardForm.find('button');
+  cardFormBtn = cardForm.find('button'),
+  cardFormAccountId = cardForm.find("input[name='accountId']");
+
+
 
   if(cardWrapper.length > 0){
     $("input[name=plan]:radio").change(function (e) {
@@ -11,6 +14,11 @@ jQuery(function($) {
         cardWrapper.hide();
       } else {
         cardWrapper.show();
+        var selectedPlan = this.value;
+        cardFormAccountId.val(function() {
+          var planAccount = JSON.parse(selectedPlan);
+          return planAccount.accountId;
+        });
       }
     });
     if($("input:radio[name=plan]:checked").val() == 'free'){
@@ -46,6 +54,7 @@ jQuery(function($) {
           cardForm.find('button').prop('disabled', false);
         } else {
           var token = response.id;
+          console.log('got token: ' + token);
           cardForm.append($('<input type="hidden" name="stripeToken" />').val(token));
           cardForm.get(0).submit();
         }

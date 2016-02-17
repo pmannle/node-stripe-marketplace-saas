@@ -2,6 +2,7 @@
 
 var Stripe = require('stripe'),
 stripe;
+var mongoose = require('mongoose');
 
 var ProxyAgent = require('https-proxy-agent');
 
@@ -12,6 +13,22 @@ module.exports = exports = function stripeCustomer (schema, options) {
     port: 80
   }));
 
+  var Plans = new mongoose.Schema({
+    id : String,
+    object : String,
+    amount : Number,
+    created : Number,
+    currency : String,
+    interval : String,
+    interval_count : Number,
+    livemode : Boolean,
+    metadata : {},
+    name : String,
+    statement_descriptor : String,
+    trial_period_days : String,
+    accountId: String
+  });
+
   schema.add({
     account: {
       accountId: String,
@@ -19,14 +36,14 @@ module.exports = exports = function stripeCustomer (schema, options) {
         secret: String,
         publishable: String
       },
-      managed: Boolean
+      managed: Boolean,
+      plans: [Plans]
     }
   });
 
   schema.pre('save', function (next) {
     var user = this;
-    if(!user.isNew || user.account.accountId) {
-      console.log('User account already exists')
+    if(!user.isNew || user.account.accountId || user.account_type == 'customer') {
       return next();
     }
 
@@ -38,10 +55,9 @@ module.exports = exports = function stripeCustomer (schema, options) {
   });
 
 
+  // created new connected account
   schema.methods.createAccount = function(cb) {
     var user = this;
-
-    console.log('creating new stripe account')
 
     stripe.accounts.create({
       country: "US",
@@ -57,19 +73,43 @@ module.exports = exports = function stripeCustomer (schema, options) {
     });
   };
 
+  // create plan for connected account
+  schema.methods.createPlan = function(plan, cb) {
+    var user = this;
+
+    stripe.plans.create({
+      amount: plan.amount,            // 2000,
+      interval: plan.interval,        // "month",
+      name: plan.name,                // "Amazing Gold Plan",
+      currency: plan.currency,        // "usd",
+      id: plan.id                     // "gold"
+    },
+    { stripe_account: user.account.accountId },
+
+        function(err, plan){
+
+      if (err) return cb(err);
+
+      // add accountId to plan object so we can assign it later to customer subscriptions
+      plan['accountId'] = user.account.accountId;
+      user.account.plans.push(plan)
+
+      user.save(function(err){
+        if (err) return cb(err);
+        return cb(null);
+      });
+    });
+  };
 
   schema.methods.setAccount = function(account, cb) {
-    var user = this// ,
-    //customerData = {
-    //  plan: plan
-    //};
-
-    console.log('account: ', account)
+    var user = this;
 
     var accountHandler = function(err, account) {
       if(err) return cb(err);
 
-      user.account.id = account.id;
+      console.log(user)
+
+      user.account.id = account.accountId;
       user.save(function(err){
         if (err) return cb(err);
         return cb(null);
