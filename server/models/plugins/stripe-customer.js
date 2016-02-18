@@ -1,26 +1,27 @@
 'use strict';
 
 var Stripe = require('stripe'),
-stripe;
+    stripe;
+
+var newCustomer;
+
 
 var ProxyAgent = require('https-proxy-agent');
 
-module.exports = exports = function stripeCustomer (schema, options) {
-  stripe = Stripe(options.apiKey);
-  stripe.setHttpAgent(new ProxyAgent({
-    host: 'hybrid-web.global.blackspider.com',
-    port: 80
-  }));
+module.exports = exports = function stripeCustomer(schema, options) {
+    stripe = Stripe(options.apiKey);
+    stripe.setHttpAgent(new ProxyAgent({
+        //host: 'hybrid-web.global.blackspider.com',
+        //port: 80,
+        host: 'webproxy.amgen.com',
+        port: 8080
+    }));
 
     schema.add({
         stripe: {
-            customerId: String,
-            subscriptionId: String,
+            customerId: String, // platform master account customer ID
             last4: String,
-            plan: {
-                type: String,
-                default: options.defaultPlan
-            }
+            subscriptions: {}
         }
     });
 
@@ -89,14 +90,19 @@ module.exports = exports = function stripeCustomer (schema, options) {
         // save stripe response with last 4 into database
         var cardHandler = function (err, customer) {
             if (err) return cb(err);
+
             if (!user.stripe.customerId) {
                 user.stripe.customerId = customer.id;
             }
+
+            // we need the the customer ID as stored on the connected account
+            newCustomer = customer.id;
+
             var card = customer.cards ? customers.cards.data[0] : customer.sources.data[0];
             user.stripe.last4 = card.last4;
             user.save(function (err) {
                 if (err) return cb(err);
-                return cb(null);
+                return cb(null, customer.id);
             });
         };
 
@@ -108,13 +114,13 @@ module.exports = exports = function stripeCustomer (schema, options) {
         //        {stripe_account: accountId},
         //        cardHandler);
         //} else {
-            console.log('4) we dont have a customer, so create a connected customer with account: ' + accountId)
-            stripe.customers.create({
-                    email: user.email,
-                    card: stripe_token
-                },
-                {stripe_account: accountId},
-                cardHandler);
+        console.log('4) we dont have a customer, so create a connected customer with account: ' + accountId)
+        stripe.customers.create({
+                email: user.email,
+                card: stripe_token
+            },
+            {stripe_account: accountId},
+            cardHandler);
         //}
     };
 
@@ -122,29 +128,38 @@ module.exports = exports = function stripeCustomer (schema, options) {
         var user = this;
         var plan = JSON.parse(plan);
 
-
-
         // handle subscription response from stripe
-        var subscriptionHandler = function (err, subscription) {
-            if (err) return cb(err);
+        var subscriptionHandler = function (subscription) {
 
-            console.log('6) subscription created, recieving stripe response')
+            var subscriptionId = subscription.id;
 
-            user.stripe.plan = plan;
-            user.stripe.subscriptionId = subscription.id;
+            if (!user.stripe.subscriptions) {
+                user.stripe.subscriptions = {};
+            }
+
+            user.stripe.subscriptions[subscriptionId] = {
+                planId: plan.id, // connected account plan ID
+                accountId: plan.accountId, // connected account ID
+                // name: name, // connected account plan name
+                customerId: newCustomer, // this customers ID for the connected account
+                subscription: subscription
+            };
+
             user.save(function (err) {
                 if (err) return cb(err);
                 return cb(null);
-            });
+            })
         };
+
 
         // create customer subscription with plan attached to connected customer and stripe_account id
         var createSubscription = function () {
 
             console.log('5) creating the subscription with connected customer')
 
+            // create the subscription using connected account customer ID
             stripe.customers.createSubscription(
-                user.stripe.customerId,
+                newCustomer,
                 {plan: plan.id},
                 {stripe_account: plan.accountId},
                 function (err, subscription) {
@@ -154,7 +169,7 @@ module.exports = exports = function stripeCustomer (schema, options) {
                         console.log(subscription);
                         cb(err);
                     } else {
-                        subscriptionHandler()
+                        subscriptionHandler(subscription)
                     }
 
                 });
@@ -162,7 +177,7 @@ module.exports = exports = function stripeCustomer (schema, options) {
 
         console.log('1) calling to stripe to create a token:  ' + stripe_token);
 
-        user.setSubscriptionCard(stripe_token, plan.accountId, createSubscription)
+        user.setSubscriptionCard(stripe_token, plan.accountId, createSubscription);
 
         //stripe.tokens.create(
         //    {customer: user.stripe.customerId, card: user.stripe.last4},
