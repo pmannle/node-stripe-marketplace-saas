@@ -28,7 +28,7 @@
             <li {%if path == '/profile'%}class="active"{%endif%}><a href="/profile">Profile</a></li>
 
             <!-- only show billing view to customers -->
-            {% if user.stripe.customerId %}
+            {% if user.stripe.platformCustomerId %}
             <li {%if path == '/billing'%}class="active"{%endif%}><a href="/billing">Billing</a></li>
             {% endif %}
 
@@ -40,7 +40,7 @@
           </ul>
           <ul class="nav navbar-nav navbar-right">
             <li style="margin-top: 15px"><span class="label label-success">
-              {% if user.stripe.customerId %}Customer View{% endif %}
+              {% if user.stripe.platformCustomerId %}Customer View{% endif %}
               {% if user.account.accountId %}Merchant View{% endif %}
               </span>
             </li>

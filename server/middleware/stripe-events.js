@@ -93,7 +93,7 @@ var knownEvents = {
     if(req.stripeEvent.data && req.stripeEvent.data.object && req.stripeEvent.data.object.customer){
       // find user where stripeEvent.data.object.customer
       User.findOne({
-        'stripe.customerId': req.stripeEvent.data.object.customer
+        'stripe.platformCustomerId': req.stripeEvent.data.object.customer
       }, function (err, user) {
         if (err) return next(err);
         if(!user){
