@@ -12,7 +12,7 @@ var userSchema = new mongoose.Schema({
   account_type: String, // customer or merchant
 
   profile: {
-    name: { type: String, default: '' },
+    name: { type: String, default: 'Test' },
     gender: { type: String, default: '' },
     location: { type: String, default: '' },
     website: { type: String, default: '' },

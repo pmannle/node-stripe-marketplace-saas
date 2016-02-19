@@ -9,20 +9,28 @@
     </div>
     {% include "../partials/flash.html" %}
     <div class="page-header">
-      <h3>Subscription</h3>
+      <h3>Subscribe to different plans from multiple merchants</h3>
     </div>
     <form {% if !user.stripe.last4 %}id="cardForm"{% endif %} action="/user/plan" method="POST" class="form-horizontal">
       <div class="form-group">
         <label for="plan" class="col-sm-3 control-label">Plan</label>
-        <div class="col-sm-4">
+        <div class="col-sm-8">
+          <hr>
           {% for plan in plans %}
+          {% if plan.accountId != oldAccount %}
+          <hr>
+          <h5>Merchant ID: <a target="_blank" href="https://dashboard.stripe.com/{{plan.accountId}}/test/plans">{{plan.accountId}}</a></h5>
+          {% endif %}
             <div class="radio">
               <label>
-                <input type="radio" {% if user.stripe.plan == loop.key %}checked{% endif %} name="plan" value='{ "accountId": "{{plan.accountId}}", "id": "{{plan.id}}" }' data-toggle="radio">
-                <span>{{plan.name}} - ${{plan.amount}} {{loop.key}}</span>
+                <input type="radio" {% if user.stripe.currentPlan == loop.key %}checked{% endif %} name="plan" value='{ "accountId": "{{plan.accountId}}", "id": "{{plan.id}}" }' data-toggle="radio">
+                <span>{{plan.name}} - ${{plan.amount / 100}} </span>
               </label>
             </div>
+          {% set oldAccount = plan.accountId %}
           {% endfor %}
+          <hr>
+
         </div>
       </div>
       {% if !user.stripe.last4 %}
@@ -74,7 +82,7 @@
 
     {% if user.stripe.last4 %}
     <div class="page-header">
-      <h3>Payment Details</h3>
+      <h3>Update Payment Details</h3>
     </div>
     <form role="form" id="cardForm" action="/user/billing" method="POST" class="form-horizontal">
       <div class="form-group">
