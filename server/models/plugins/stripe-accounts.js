@@ -52,7 +52,7 @@ module.exports = exports = function stripeCustomer (schema, options) {
       return next();
     }
 
-    console.log('creating sub-merchant account')
+    console.log('Creating sub-merchant account')
     user.createAccount(function(err){
       if (err) return next(err);
       next();
@@ -111,8 +111,6 @@ module.exports = exports = function stripeCustomer (schema, options) {
 
     var accountHandler = function(err, account) {
       if(err) return cb(err);
-
-      console.log(user)
 
       user.account.id = account.accountId;
       user.save(function(err){

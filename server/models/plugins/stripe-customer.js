@@ -2,7 +2,7 @@
 
 var Stripe = require('stripe'),
     stripe;
-
+var _ = require('lodash');
 
 var customerId;
 
@@ -43,8 +43,30 @@ module.exports = exports = function stripeCustomer(schema, options) {
         });
     });
 
-    schema.statics.getPlans = function () {
-        return options.planData;
+    schema.statics.getPlans = function (cb) {
+        var user = this;
+
+        var plans = {};
+        plans['free'] = {
+                amount: 0,
+                name: 'free plan',
+                id: 'freeplan',
+                accountId: null
+            };
+
+        user.find({'account.plans.0': { $exists: true } }, 'account.plans', function(err, accounts) {
+            if (err) cb(err);
+            //return accounts;
+            _.forEach(accounts, function(account) {
+                _.forEach(account.account.plans, function(newplan) {
+                    newplan['belongsToAccount'] = account.accountId;
+                    plans[newplan.id] = newplan;
+                })
+            })
+            // console.log(plans);
+            cb(err, plans);
+        })
+
     };
 
     schema.methods.createCustomer = function (cb) {
@@ -55,6 +77,7 @@ module.exports = exports = function stripeCustomer(schema, options) {
         }, function (err, customer) {
             if (err) return cb(err);
             user.stripe.platformCustomerId = customer.id;
+            user.stripe.currentPlan = 'free';
             return cb();
         });
     };
@@ -207,8 +230,6 @@ module.exports = exports = function stripeCustomer(schema, options) {
         var createSubscription = function (err, customerId) {
             if (err) return cb(err);
 
-            console.log('5) creating the subscription with connected customer')
-
             // create the subscription using connected account customer ID
             stripe.customers.createSubscription(
                 customerId,
@@ -226,8 +247,6 @@ module.exports = exports = function stripeCustomer(schema, options) {
 
                 });
         };
-
-        console.log('1) calling to stripe to create a token:  ' + stripe_token);
 
         user.setSubscriptionCard(stripe_token, plan.accountId, createSubscription);
 

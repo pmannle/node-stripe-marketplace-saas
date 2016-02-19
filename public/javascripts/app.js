@@ -10,7 +10,8 @@ jQuery(function($) {
 
   if(cardWrapper.length > 0){
     $("input[name=plan]:radio").change(function (e) {
-      if(this.value == 'free'){
+      var selectedPlan = JSON.parse(this.value);
+      if(selectedPlan.id == 'freeplan'){
         cardWrapper.hide();
       } else {
         cardWrapper.show();
@@ -34,7 +35,8 @@ jQuery(function($) {
     cardYear,
     cardCVC;
 
-    if(cardForm.find("input:radio[name=plan]:checked").val() != 'free'){
+    var selectedPlan = JSON.parse(cardForm.find("input:radio[name=plan]:checked").val());
+    if(selectedPlan.id != 'freeplan'){
       cardFormBtn.prop('disabled', true);
 
       cardNum = $('#card-num').val();

@@ -8,7 +8,7 @@
       <h1>Home <small>/views/dashboard/index</small></h1>
     </div>
     {% include "../partials/flash.html" %}
-    {% if user.stripe.plan == 'free' %}
+    {% if user.stripe.currentPlan == 'free' %}
     <div class="panel panel-default">
       <div class="panel-heading">Free Plan</div>
       <div class="panel-body">
@@ -17,54 +17,15 @@
     </div>
     {% else %}
     <div class="panel panel-default">
-      <div class="panel-heading">Free Plan (<a href="/billing">Change to this plan</a>)</div>
+      <div class="panel-heading">More Plans (<a href="/billing">Choose a new plan</a>)</div>
     </div>
     {% endif %}
 
-    {% if user.stripe.plan == 'silver' %}
-    <div class="panel panel-default">
-      <div class="panel-heading">Silver Plan</div>
-      <div class="panel-body">
-        <p>Thanks for subscribing to the silver plan!</p>
-      </div>
-    </div>
-    {% else %}
-    <div class="panel panel-default">
-      <div class="panel-heading">Silver Plan (<a href="/billing">Change to this plan</a>)</div>
-    </div>
-    {% endif %}
-
-    {% if user.stripe.plan == 'gold' %}
-    <div class="panel panel-default">
-      <div class="panel-heading">Gold Plan</div>
-      <div class="panel-body">
-        <p>Thanks for subscribing to the gold plan!</p>
-      </div>
-    </div>
-    {% else %}
-    <div class="panel panel-default">
-      <div class="panel-heading">Gold Plan (<a href="/billing">Change to this plan</a>)</div>
-    </div>
-    {% endif %}
-
-    {% if user.stripe.plan == 'platinum' %}
-    <div class="panel panel-default">
-      <div class="panel-heading">Platinum Plan</div>
-      <div class="panel-body">
-        <p>Thanks for subscribing to the platinum plan!</p>
-      </div>
-    </div>
-    {% else %}
-    <div class="panel panel-default">
-      <div class="panel-heading">Platinum Plan (<a href="/billing">Change to this plan</a>)</div>
-    </div>
-    {% endif %}
 
     <div class="well">
       <p>Debug Info:</p>
       <ul>
-        <li>Does this user have a plan? {% if _.has(plans, user.stripe.plan) %}YES{% else %}NOPE{% endif %}</li>
-        <li>Does this user have paid plan? {% if _.contains(['silver','gold','platinum'], user.stripe.plan) %}YES{% else %}NOPE{% endif %}</li>
+        <li>Does this user have a paid plan? {% if _.has(plans, user.stripe.currentPlan) %}YES{% else %}NOPE{% endif %}</li>
       </ul>
     </div>
   </div>

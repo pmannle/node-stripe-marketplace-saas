@@ -41,7 +41,7 @@
       <div class="form-group">
         <label for="name" class="col-sm-3 control-label">Last 4</label>
         <div class="col-sm-4">
-          <p class="form-control-static">{{user.stripe.last4}}</p>
+          <p class="form-control-static">{% if user.stripe.last4 %} {{user.stripe.last4}} {% else %} No card on file {% endif %}</p>
         </div>
       </div>
       <div class="form-group">

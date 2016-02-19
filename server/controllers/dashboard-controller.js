@@ -1,7 +1,6 @@
 'use strict';
 
-var User = require('../models/user'),
-plans = User.getPlans();
+var User = require('../models/user');
 
 exports.getDefault = function(req, res, next){
   var form = {},
@@ -16,7 +15,9 @@ exports.getDefault = function(req, res, next){
     error = errorFlash[0];
   }
 
-  res.render(req.render, {user: req.user, form: form, error: error, plans: plans});
+  User.getPlans(function(error, plans) {
+    res.render(req.render, {user: req.user, form: form, error: error, plans: plans});
+  });
 };
 
 exports.getBilling = function(req, res, next){
@@ -32,7 +33,9 @@ exports.getBilling = function(req, res, next){
     error = errorFlash[0];
   }
 
-  res.render(req.render, {user: req.user, form: form, error: error, plans: plans});
+  User.getPlans(function(error, plans) {
+      res.render(req.render, {user: req.user, form: form, error: error, plans: plans});
+      });
 };
 
 exports.getAccount = function(req, res, next){
@@ -48,7 +51,10 @@ exports.getAccount = function(req, res, next){
     error = errorFlash[0];
   }
 
-  res.render(req.render, {user: req.user, form: form, error: error, plans: plans});
+  User.getPlans(function(err, plans) {
+    res.render(req.render, {user: req.user, form: form, error: error, plans: plans});
+  });
+
 };
 
 exports.getProfile = function(req, res, next){
@@ -64,10 +70,8 @@ exports.getProfile = function(req, res, next){
     error = errorFlash[0];
   }
 
-  //console.log(req.user);
-  //console.log(req.render);
-  //console.log(form);
-  //console.log(plans);
+  User.getPlans(function(err, plans) {
+    res.render(req.render, {user: req.user, form: form, error: error, plans: plans});
+      });
 
-  res.render(req.render, {user: req.user, form: form, error: error, plans: plans});
 };
