@@ -32,12 +32,16 @@
           </div>
         </div>
       </div>
+
+      {% if user.account_type == 'customer' %}
       <div class="form-group">
         <label for="name" class="col-sm-3 control-label">Plan</label>
         <div class="col-sm-4">
           <p class="form-control-static">{{plans[user.stripe.currentPlan].name}} - ${{plans[user.stripe.currentPlan].amount / 100}}</p>
         </div>
       </div>
+      {% endif %}
+
       <div class="form-group">
         <label for="name" class="col-sm-3 control-label">Last 4</label>
         <div class="col-sm-4">
