@@ -99,7 +99,7 @@ module.exports = exports = function stripeCustomer(schema, options) {
             user.stripe.default_source = customer.default_source;
             user.save(function (err) {
                 if (err) return cb(err);
-                return cb(null);
+                return cb(null, customer.default_source);
             });
         };
 
@@ -119,7 +119,7 @@ module.exports = exports = function stripeCustomer(schema, options) {
 
 
         // save stripe response with last 4 into database
-        var cardHandler = function (err, customer) {
+        var connectedCardHandler = function (err, customer) {
             if (err) return cb(err);
 
             // we need the the customer ID as stored on the connected account
@@ -166,14 +166,28 @@ module.exports = exports = function stripeCustomer(schema, options) {
 
             if (stripe_token) {
 
+
                 // this is the first time a user has entered their card, and selected a plan
                 // so we have the token available
-                stripe.customers.create({
-                        email: user.email,
-                        card: stripe_token
-                    },
-                    {stripe_account: accountId},
-                    cardHandler);
+                user.setCard(stripe_token, function (err, default_source) {
+                    if (err) cb(err);
+                    stripe.tokens.create(
+                        {customer: user.stripe.platformCustomerId, card: default_source},
+                        {stripe_account: accountId}, // id of the connected account
+                        function (err, token) {
+                            // callback
+                            if (err) return cb(err);
+                            stripe.customers.create({
+                                    email: user.email,
+                                    card: token.id
+                                },
+                                {stripe_account: accountId},
+                                connectedCardHandler);
+                        }
+                    );
+                })
+
+
             } else {
 
                 // otherwise, we have a saved customer, but not a token for this session,
@@ -189,7 +203,7 @@ module.exports = exports = function stripeCustomer(schema, options) {
                                 card: token.id
                             },
                             {stripe_account: accountId},
-                            cardHandler);
+                            connectedCardHandler);
                     }
                 );
             }
