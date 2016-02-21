@@ -22,7 +22,9 @@ jQuery(function($) {
         });
       }
     });
-    if($("input:radio[name=plan]:checked").val() == 'free'){
+    var checkedPlan = $("input:radio[name=plan]:checked").val();
+    var selectedPlan = JSON.parse(checkedPlan);
+    if(selectedPlan.id != 'freeplan') {
       cardWrapper.hide();
     }
   }
@@ -35,7 +37,8 @@ jQuery(function($) {
     cardYear,
     cardCVC;
 
-    var selectedPlan = JSON.parse(cardForm.find("input:radio[name=plan]:checked").val());
+    var checkedPlan = $("input:radio[name=plan]:checked").val();
+    var selectedPlan = JSON.parse(checkedPlan);
     if(selectedPlan.id != 'freeplan'){
       cardFormBtn.prop('disabled', true);
 
