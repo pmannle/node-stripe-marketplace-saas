@@ -3,140 +3,198 @@
 {% block title %}{{title}}{% endblock %}
 
 {% block content %}
-  <div class="container-fluid container-max">
+<div class="container-fluid container-max">
     <div class="page-header">
-      <h1>Billing <small>/views/dashboard/billing</small></h1>
+        <h1>Billing
+            <small>/views/dashboard/billing</small>
+        </h1>
     </div>
     {% include "../partials/flash.html" %}
     <div class="page-header">
-      <h3>Subscribe to different plans from multiple merchants</h3>
+        <h3>Subscribe to different plans from multiple merchants</h3>
     </div>
-    <form {% if !user.stripe.last4 %}id="cardForm"{% endif %} action="/user/plan" method="POST" class="form-horizontal">
-      <div class="form-group">
-        <label for="plan" class="col-sm-3 control-label">Plan</label>
+
+
+    <div class="form-group">
+        <label for="plan" class="col-sm-3 control-label">Choose a Merchant</label>
         <div class="col-sm-8">
-          <hr>
-          {% for plan in plans %}
-          {% if plan.accountId != oldAccount %}
-          <hr>
-          <h5>Merchant ID: <a target="_blank" href="https://dashboard.stripe.com/{{plan.accountId}}/test/plans">{{plan.accountId}}</a></h5>
-          {% endif %}
-            <div class="radio">
-              <label>
-                <input type="radio" {% if user.stripe.currentPlan == loop.key %}checked{% endif %} name="plan" value='{ "accountId": "{{plan.accountId}}", "id": "{{plan.id}}" }' data-toggle="radio">
-                <span>{{plan.name}} - ${{plan.amount / 100}} </span>
-              </label>
-            </div>
-          {% set oldAccount = plan.accountId %}
-          {% endfor %}
-          <hr>
+            <select class="form-control" id="account-selector">
+                {% for account in plans %}
+                {% if loop.key != oldAccount %}
+                <option value="{{loop.key}}"><a target="_blank"
+                                                href="https://dashboard.stripe.com/{{plan.accountId}}/test/plans">{{loop.key}}</a>
+                </option>
+                {% endif %}
+                {% set oldAccount = loop.key %}
+                {% endfor %}
+            </select>
+        </div>
 
+        <div class="row">
+            <div class="col-sm-12">
+                <hr>
+            </div>
         </div>
-      </div>
-      {% if !user.stripe.last4 %}
-      <div id="cardWrapper">
-        <div class="form-group">
-          <label class="col-sm-3 control-label">Test Card Info</label>
-          <div class="col-sm-7">
-            <div class="form-control-static">4242424242424242, 11/19, 123 - <a href="https://stripe.com/docs/testing">additional test info</a></div>
-          </div>
-        </div>
-        <div class="form-group">
-          <label class="col-sm-3 control-label">Card Number</label>
-          <div class="col-sm-4">
-            <input id="card-num" value="4242424242424242" type="text" class="form-control">
-          </div>
-        </div>
-        <div class="form-group">
-          <label class="col-sm-3 control-label">Card Details</label>
-          <div class="col-sm-4">
+
+        {% for account in plans %}
+
+        <form {% if !user.stripe.last4 %}id="cardForm" {% endif %} action="/user/plan" method="POST"
+              data-merchant data-{{loop.key}}  class="form-horizontal">
             <div class="row">
-              <div class="col-xs-4">
-                <input id="card-month" value="11" type="text" size="2" maxlength="2" class="form-control" placeholder="MM">
-              </div>
-              <div class="col-xs-4">
-                <input id="card-year"  value="19" type="text" size="2" maxlength="2" class="form-control" placeholder="YY">
-              </div>
-              <div class="col-xs-4">
-                <input id="card-cvc" value="123" type="text" size="3" maxlength="3" class="form-control" placeholder="CVC">
-              </div>
+                <label for="plan" class="col-sm-3 control-label">Choose a Plan</label>
+                <div class="col-sm-8 {{loop.key}}">
+                    <h5>Merchant ID: <a target="_blank"
+                                        href="https://dashboard.stripe.com/{{loop.key}}/test/plans">{{loop.key}}</a>
+                    </h5>
+                </div>
             </div>
-          </div>
-        </div>
-        <div class="form-group">
-          <div class="col-sm-6 col-sm-offset-3">
-            <div id="cardFormError" class="alert alert-danger hidden" role="alert">
-              <p>{{error}}</p>
-            </div>
-          </div>
-        </div>
-      </div>
-      {% endif %}
-      <div class="form-group">
-        <div class="col-sm-offset-3 col-sm-4">
-          <input type="hidden" id="accountId" name="accountId" value="">
-          <button type="submit" class="btn btn-primary">Update Plan</button>
-        </div>
-      </div>
-    </form>
 
-    {% if user.stripe.last4 %}
-    <div class="page-header">
-      <h3>Update Payment Details</h3>
-    </div>
-    <form role="form" id="cardForm" action="/user/billing" method="POST" class="form-horizontal">
-      <div class="form-group">
-        <label class="col-sm-3 control-label">Test Card Info</label>
-        <div class="col-sm-7">
-          <div class="form-control-static">4242424242424242, 11/19, 123 - <a href="https://stripe.com/docs/testing">additional test cards</a></div>
-        </div>
-      </div>
-      <div class="form-group">
-        <label class="col-sm-3 control-label">Card Number</label>
-        <div class="col-sm-4">
-          <input id="card-num" value="4242424242424242" type="text" class="form-control" placeholder="XXXX XXXX XXXX {{user.stripe.last4}}">
-        </div>
-      </div>
-      <div class="form-group">
-        <label class="col-sm-3 control-label">Card Details</label>
-        <div class="col-sm-4">
-          <div class="row">
-            <div class="col-xs-4">
-              <input id="card-month" value="11" type="text" size="2" maxlength="2" class="form-control" placeholder="MM">
+            {% for plan in plans[loop.key] %}
+            <div class="row">
+                <div class="col-sm-8 col-sm-offset-3">
+                    <div class="radio">
+                        <label>
+                            <input type="radio" {% if user.stripe.currentPlan== loop.key %}checked{% endif %}
+                                   name="plan"
+                                   value='{ "accountId": "{{plan.accountId}}", "id": "{{plan.id}}" }'
+                                   data-toggle="radio">
+                            <span>{{plan.name}} - ${{plan.amount / 100}} </span>
+                        </label>
+                    </div>
+                </div>
             </div>
-            <div class="col-xs-4">
-              <input id="card-year"  value="19" type="text" size="2" maxlength="2" class="form-control" placeholder="YY">
-            </div>
-            <div class="col-xs-4">
-              <input id="card-cvc" value="123" type="text" size="3" maxlength="3" class="form-control" placeholder="CVC">
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="form-group">
-        <div class="col-sm-6 col-sm-offset-3">
-          <div id="cardFormError" class="alert alert-danger hidden" role="alert">
-            <p>{{error}}</p>
-          </div>
-        </div>
-      </div>
-      <div class="form-group">
-        <div class="col-sm-offset-3 col-sm-4">
-          <input type="hidden" id="accountId" name="accountId" value="">
-          <button type="submit" class="btn btn-primary">Update Card</button>
-        </div>
-      </div>
-    </form>
-    {% endif %}
+            {% endfor %}
 
-    <div class="page-header">
-      <h3>Delete Account</h3>
+
+            <div class="row">
+                <div class="col-sm-12">
+                    <hr>
+                </div>
+            </div>
+
+
+            {% if !user.stripe.last4 %}
+            <div id="cardWrapper">
+                <div class="form-group">
+                    <label class="col-sm-3 control-label">Test Card Info</label>
+                    <div class="col-sm-7">
+                        <div class="form-control-static">4242424242424242, 11/19, 123 - <a
+                                href="https://stripe.com/docs/testing">additional test info</a></div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-3 control-label">Card Number</label>
+                    <div class="col-sm-4">
+                        <input id="card-num" value="4242424242424242" type="text" class="form-control">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-3 control-label">Card Details</label>
+                    <div class="col-sm-4">
+                        <div class="row">
+                            <div class="col-xs-4">
+                                <input id="card-month" value="11" type="text" size="2" maxlength="2"
+                                       class="form-control"
+                                       placeholder="MM">
+                            </div>
+                            <div class="col-xs-4">
+                                <input id="card-year" value="19" type="text" size="2" maxlength="2" class="form-control"
+                                       placeholder="YY">
+                            </div>
+                            <div class="col-xs-4">
+                                <input id="card-cvc" type="text" size="3" maxlength="3" class="form-control"
+                                       placeholder="CVC">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-sm-6 col-sm-offset-3">
+                        <div id="cardFormError" class="alert alert-danger hidden" role="alert">
+                            <p>{{error}}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="form-group">
+                <div class="col-sm-offset-3 col-sm-4">
+                    <input type="hidden" id="accountId" name="accountId" value="">
+                    <button type="submit" class="btn btn-primary">Update Plan</button>
+                </div>
+            </div>
+        </form>
+
+        {% endfor %}
+
+
+
+                    {% if user.stripe.last4 %}
+                    <div class="page-header">
+                        <h3>Update Payment Details</h3>
+                    </div>
+                    <form role="form" id="cardForm" action="/user/billing" method="POST" class="form-horizontal">
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">Test Card Info</label>
+                            <div class="col-sm-7">
+                                <div class="form-control-static">4242424242424242, 11/19, 123 - <a
+                                        href="https://stripe.com/docs/testing">additional test cards</a></div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">Card Number</label>
+                            <div class="col-sm-4">
+                                <input id="card-num" value="4242424242424242" type="text" class="form-control"
+                                       placeholder="XXXX XXXX XXXX {{user.stripe.last4}}">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">Card Details</label>
+                            <div class="col-sm-4">
+                                <div class="row">
+                                    <div class="col-xs-4">
+                                        <input id="card-month" value="11" type="text" size="2" maxlength="2" class="form-control"
+                                               placeholder="MM">
+                                    </div>
+                                    <div class="col-xs-4">
+                                        <input id="card-year" value="19" type="text" size="2" maxlength="2" class="form-control"
+                                               placeholder="YY">
+                                    </div>
+                                    <div class="col-xs-4">
+                                        <input id="card-cvc" value="123" type="text" size="3" maxlength="3" class="form-control"
+                                               placeholder="CVC">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-sm-6 col-sm-offset-3">
+                                <div id="cardFormError" class="alert alert-danger hidden" role="alert">
+                                    <p>{{error}}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-sm-offset-3 col-sm-4">
+                                <input type="hidden" id="accountId" name="accountId" value="">
+                                <button type="submit" class="btn btn-primary">Update Card</button>
+                            </div>
+                        </div>
+                    </form>
+                    {% endif %}
+
+
+        <div class="page-header">
+            <h3>Delete Account</h3>
+        </div>
+        <form action="/user/delete" method="POST" class="form-horizontal">
+            <div class="form-group">
+                <div class="col-sm-offset-3 col-sm-4">
+                    <button type="submit" class="btn btn-danger"><span class="ion-edit"></span>Delete Account</button>
+                </div>
+            </div>
+        </form>
     </div>
-    <form action="/user/delete" method="POST" class="form-horizontal">
-      <div class="form-group">
-        <div class="col-sm-offset-3 col-sm-4"><button type="submit" class="btn btn-danger"><span class="ion-edit"></span>Delete Account</button></div>
-      </div>
-    </form>
-  </div>
 </div>
 {% endblock %}

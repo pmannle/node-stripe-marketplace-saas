@@ -46,24 +46,20 @@ module.exports = exports = function stripeCustomer(schema, options) {
     schema.statics.getPlans = function (cb) {
         var user = this;
 
-        var plans = {};
-        plans['free'] = {
-                amount: 0,
-                name: 'free plan',
-                id: 'freeplan',
-                accountId: null
-            };
+        var plans = [];
 
-        user.find({'account.plans.0': { $exists: true } }, 'account.plans', function(err, accounts) {
+        user.find({'account.plans.0': { $exists: true } }, 'account', {lean: true}, function(err, accounts) {
             if (err) cb(err);
             //return accounts;
+            var plans = {};
             _.forEach(accounts, function(account) {
-                _.forEach(account.account.plans, function(newplan) {
-                    newplan['belongsToAccount'] = account.accountId;
-                    plans[newplan.id] = newplan;
+                plans[account.account.accountId] = {};
+                _.forEach(account.account.plans, function(newplan, key) {
+                    //console.log(newplan);
+                    plans[account.account.accountId][newplan.id] = newplan;
                 })
             })
-            // console.log(plans);
+            //console.log(plans);
             cb(err, plans);
         })
 

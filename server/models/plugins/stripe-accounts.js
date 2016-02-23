@@ -123,6 +123,28 @@ module.exports = exports = function stripeCustomer (schema, options) {
 
   };
 
+  schema.statics.getAccountPlans = function (cb) {
+    var user = this;
+
+    var plans = [];
+
+    user.find({'account.plans.0': { $exists: true } }, 'account', {lean: true}, function(err, accounts) {
+      if (err) cb(err);
+      //return accounts;
+      var plans = {};
+      _.forEach(accounts, function(account) {
+        plans[account.account.accountId] = {};
+        _.forEach(account.account.plans, function(newplan, key) {
+          //console.log(newplan);
+          plans[account.account.accountId][newplan.id] = newplan;
+        })
+      })
+      //console.log(plans);
+      cb(err, plans);
+    })
+
+  };
+
   schema.methods.updateStripeEmail = function(cb){
     var user = this;
 

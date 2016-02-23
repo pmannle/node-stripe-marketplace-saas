@@ -6,6 +6,15 @@ jQuery(function($) {
   cardFormBtn = cardForm.find('button'),
   cardFormAccountId = cardForm.find("input[name='accountId']");
 
+  // hide different merchant forms until user selects one
+  $('[data-merchant]').hide();
+
+  $('#account-selector').change(function (e) {
+    e.preventDefault();
+    var selectedAccount = '[data-' + this.value + ']';
+    $('[data-merchant]').hide();
+    $(selectedAccount).show();
+  })
 
 
   if(cardWrapper.length > 0){
