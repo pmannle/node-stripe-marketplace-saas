@@ -19,6 +19,7 @@
         <label for="plan" class="col-sm-3 control-label">Choose a Merchant</label>
         <div class="col-sm-8">
             <select class="form-control" id="account-selector">
+                <option value="">Make Selection to See Plans</option>
                 {% for account in plans %}
                 {% if loop.key != oldAccount %}
                 <option value="{{loop.key}}"><a target="_blank"

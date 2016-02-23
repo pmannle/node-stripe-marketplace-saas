@@ -34,13 +34,6 @@ exports.getBilling = function(req, res, next){
   }
 
   User.getPlans(function(error, plans) {
-    //var plans = {};
-    //plans['free'] = {
-    //  amount: 0,
-    //  name: 'free plan',
-    //  id: 'freeplan',
-    //  accountId: null
-    //};
       res.render(req.render, {user: req.user, form: form, error: error, plans: plans});
       });
 };
@@ -58,9 +51,9 @@ exports.getAccount = function(req, res, next){
     error = errorFlash[0];
   }
 
-  User.getPlans(function(err, plans) {
+  User.getAccountPlans(function(err, plans) {
     res.render(req.render, {user: req.user, form: form, error: error, plans: plans});
-  });
+  }, req.user);
 
 };
 

@@ -3,6 +3,8 @@
 var Stripe = require('stripe'),
 stripe;
 var mongoose = require('mongoose');
+var _ = require('lodash');
+
 
 // var ProxyAgent = require('https-proxy-agent');
 
@@ -123,25 +125,17 @@ module.exports = exports = function stripeCustomer (schema, options) {
 
   };
 
-  schema.statics.getAccountPlans = function (cb) {
-    var user = this;
+  schema.statics.getAccountPlans = function (cb, user) {
+    var user =user;
 
-    var plans = [];
-
-    user.find({'account.plans.0': { $exists: true } }, 'account', {lean: true}, function(err, accounts) {
-      if (err) cb(err);
       //return accounts;
       var plans = {};
-      _.forEach(accounts, function(account) {
-        plans[account.account.accountId] = {};
-        _.forEach(account.account.plans, function(newplan, key) {
-          //console.log(newplan);
-          plans[account.account.accountId][newplan.id] = newplan;
-        })
+      plans[user.account.accountId] = {};
+      _.forEach(user.account.plans, function(plan) {
+        plans[user.account.accountId][plan.id] = plan;
       })
-      //console.log(plans);
-      cb(err, plans);
-    })
+      //if (err) cb(err);
+      cb(null, plans);
 
   };
 

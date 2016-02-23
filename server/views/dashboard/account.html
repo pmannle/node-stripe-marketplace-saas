@@ -10,6 +10,46 @@
         </h1>
     </div>
     {% include "../partials/flash.html" %}
+
+
+    <div class="page-header">
+        <h3>Your Current Plans</h3>
+    </div>
+
+
+
+    <form action="/account/deleteplan" method="POST" class="form-horizontal">
+
+    {% for account in plans %}
+
+        {% for plan in plans[loop.key] %}
+        <div class="row">
+            <div class="col-sm-8 col-sm-offset-3">
+                <div class="radio">
+                    <label>
+                        <input type="radio" {% if user.stripe.currentPlan== loop.key %}checked{% endif %}
+                               name="plan"
+                               value='{ "accountId": "{{plan.accountId}}", "id": "{{plan.id}}" }'
+                               data-toggle="radio">
+                        <span>{{plan.name}} - ${{plan.amount / 100}} </span>
+                    </label>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+
+        <div class="form-group">
+            <div class="col-sm-offset-3 col-sm-4">
+                <input type="hidden" id="accountId" name="accountId" value="">
+                <button type="submit" class="btn btn-primary">Delete Plan</button>
+            </div>
+        </div>
+    </form>
+
+    {% endfor %}
+
+
+
     <div class="page-header">
         <h3>Create A Subscription Plan</h3>
     </div>
