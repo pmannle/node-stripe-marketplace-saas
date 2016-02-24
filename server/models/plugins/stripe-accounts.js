@@ -84,6 +84,9 @@ module.exports = exports = function stripeCustomer (schema, options) {
   schema.methods.createPlan = function(plan, cb) {
     var user = this;
 
+    // stripe user cents
+    plan.amount = (parseFloat(plan.amount) * 100).toFixed(0);
+
     stripe.plans.create({
       amount: plan.amount,            // 2000,
       interval: plan.interval,        // "month",
@@ -129,7 +132,7 @@ module.exports = exports = function stripeCustomer (schema, options) {
 
           var plans = user.account.plans;
 
-        try {
+          try {
           _.forEach(plans, function (plan, index) {
             if (plans[index].id == planId) {
               user.account.plans.pop(index)
