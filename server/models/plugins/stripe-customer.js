@@ -7,20 +7,20 @@ var _ = require('lodash');
 var customerId;
 
 // if you are behind a proxy, uncomment these lines
-// var ProxyAgent = require('https-proxy-agent');
+ var ProxyAgent = require('https-proxy-agent');
 
 module.exports = exports = function stripeCustomer(schema, options) {
     stripe = Stripe(options.apiKey);
 
     // if you are behind a proxy, uncomment these lines
-    /*
+
     stripe.setHttpAgent(new ProxyAgent({
         //host: 'hybrid-web.global.blackspider.com',
         //port: 80,
         host: 'webproxy.amgen.com',
         port: 8080
     }));
-    */
+
 
     schema.add({
         stripe: {

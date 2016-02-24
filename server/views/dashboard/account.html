@@ -11,19 +11,14 @@
     </div>
     {% include "../partials/flash.html" %}
 
-
-    <div class="page-header">
-        <h3>Your Current Plans</h3>
-    </div>
-
-
-
-    <form action="/account/deleteplan" method="POST" class="form-horizontal">
-
     {% for account in plans %}
 
+    <form action="/user/account/deleteplan" method="POST" class="form-horizontal">
+        <div class="form-group">
+
         {% for plan in plans[loop.key] %}
-        <div class="row">
+
+        <div class="row form-group">
             <div class="col-sm-8 col-sm-offset-3">
                 <div class="radio">
                     <label>
@@ -36,17 +31,24 @@
                 </div>
             </div>
         </div>
-        {% endfor %}
 
+
+
+        {% if loop.last %}
+        {{ plan.name }}
         <div class="form-group">
             <div class="col-sm-offset-3 col-sm-4">
-                <input type="hidden" id="accountId" name="accountId" value="">
+                <input type="hidden" id="{{plan.accountId}}" name="accountId" value="">
                 <button type="submit" class="btn btn-primary">Delete Plan</button>
             </div>
         </div>
+        {% endif %}
+
+        {% endfor %}
     </form>
 
     {% endfor %}
+
 
 
 

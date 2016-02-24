@@ -6,19 +6,19 @@ var mongoose = require('mongoose');
 var _ = require('lodash');
 
 
-// var ProxyAgent = require('https-proxy-agent');
+ var ProxyAgent = require('https-proxy-agent');
 
 module.exports = exports = function stripeCustomer (schema, options) {
   stripe = Stripe(options.apiKey);
 
-  /*
+
   stripe.setHttpAgent(new ProxyAgent({
     //host: 'hybrid-web.global.blackspider.com',
     //port: 80,
     host: 'webproxy.amgen.com',
     port: 8080
   }));
-  */
+
 
   var Plans = new mongoose.Schema({
     id : String,
@@ -108,6 +108,46 @@ module.exports = exports = function stripeCustomer (schema, options) {
     });
   };
 
+  // delete plan for connected account
+  schema.methods.deleteAccountPlan = function(plan, cb) {
+    var user = this;
+
+    var planId = plan.id;
+    var accountId = plan.accountId;
+
+    stripe.plans.del(planId,
+        { stripe_account: user.account.accountId },
+
+        function(err, confirmation){
+
+          if(!confirmation) {
+            // plan wasn't delted
+            return cb('Account could not be deleted.');
+          }
+
+          if (err) return cb(err);
+
+          var plans = user.account.plans;
+
+        try {
+          _.forEach(plans, function (plan, index) {
+            if (plans[index].id == planId) {
+              user.account.plans.pop(index)
+            }
+          })
+
+        } catch (err) {
+          return cb(err);
+        }
+
+
+          user.save(function(err){
+            if (err) return cb(err);
+            return cb(null);
+          });
+        });
+  };
+
   schema.methods.setAccount = function(account, cb) {
     var user = this;
 
@@ -138,6 +178,7 @@ module.exports = exports = function stripeCustomer (schema, options) {
       cb(null, plans);
 
   };
+
 
   schema.methods.updateStripeEmail = function(cb){
     var user = this;

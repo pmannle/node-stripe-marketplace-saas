@@ -228,8 +228,6 @@ exports.getAccountPlans = function () {
 
 exports.postAccountPlan = function (req, res, next) {
 
-    console.log('Posting new account plan')
-
     if (req.body.plan_name && req.body.plan_amount) {
 
 
@@ -253,7 +251,6 @@ exports.postAccountPlan = function (req, res, next) {
 
                 if (err) {
                     req.flash('errors', {msg: JSON.stringify(err)});
-                    console.log('redirecting from user-controller create plan error')
                     return res.redirect(req.redirect.failure);
                     //next(err);
                 }
@@ -271,4 +268,38 @@ exports.postAccountPlan = function (req, res, next) {
 
 
 };
+
+exports.deleteAccountPlan = function (req, res, next) {
+
+    if (req.body.plan) {
+
+        var plan = JSON.parse(req.body.plan);
+
+        User.findById(req.user.id, function (err, user) {
+            if (err) return next(err);
+
+            user.deleteAccountPlan(plan, function (err) {
+                var msg;
+
+                if (err) {
+                    req.flash('errors', {msg: JSON.stringify(err)});
+                    return res.redirect(req.redirect.failure);
+                    //next(err);
+                }
+
+                req.flash('success', {msg: 'Your plan has been deleted. (Any users currently subscribed will continue to be invoiced)'});
+                res.redirect(req.redirect.success);
+            });
+
+        });
+
+    } else {
+        req.flash('errors', {msg: 'You must fill out the plan details'});
+        return res.redirect(req.redirect.failure);
+
+    }
+
+
+};
+
 

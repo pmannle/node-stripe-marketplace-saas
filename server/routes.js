@@ -124,6 +124,10 @@ module.exports = function (app, passport) {
       setRedirect({auth: '/', success: '/account', failure: '/account'}),
       isAuthenticated,
       users.postAccountPlan);
+  app.post('/user/account/deleteplan',
+      setRedirect({auth: '/', success: '/account', failure: '/account'}),
+      isAuthenticated,
+      users.deleteAccountPlan);
 
 
   // use this url to receive stripe webhook events
