@@ -108,6 +108,41 @@ module.exports = exports = function stripeCustomer (schema, options) {
     });
   };
 
+  // delete plan for connected account
+  schema.methods.deleteAccountPlan = function(plan, cb) {
+    var user = this;
+
+    var planId = plan.id;
+    var accountId = plan.accountId;
+
+    stripe.plans.del(planId,
+        { stripe_account: user.account.accountId },
+
+        function(err, confirmation){
+
+          if(!confirmation) {
+            // plan wasn't delted
+            return cb('Account could not be deleted.');
+          }
+
+          if (err) return cb(err);
+
+          var plans = user.account.plans;
+
+          _.forEach(plans, function(plan, index) {
+              if(plans[index].id == planId) {
+                user.account.plans.pop(index)
+              }
+          })
+
+
+          user.save(function(err){
+            if (err) return cb(err);
+            return cb(null);
+          });
+        });
+  };
+
   schema.methods.setAccount = function(account, cb) {
     var user = this;
 
@@ -138,6 +173,7 @@ module.exports = exports = function stripeCustomer (schema, options) {
       cb(null, plans);
 
   };
+
 
   schema.methods.updateStripeEmail = function(cb){
     var user = this;
