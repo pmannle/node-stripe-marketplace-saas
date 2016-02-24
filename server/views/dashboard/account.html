@@ -36,6 +36,7 @@
 
         {% if loop.last %}
         {{ plan.name }}
+
         <div class="form-group">
             <div class="col-sm-offset-3 col-sm-4">
                 <input type="hidden" id="{{plan.accountId}}" name="accountId" value="">
@@ -43,8 +44,8 @@
             </div>
         </div>
         {% endif %}
-
         {% endfor %}
+
     </form>
 
     {% endfor %}

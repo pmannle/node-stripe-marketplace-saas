@@ -129,7 +129,7 @@ module.exports = exports = function stripeCustomer (schema, options) {
 
           var plans = user.account.plans;
 
-        try {
+          try {
           _.forEach(plans, function (plan, index) {
             if (plans[index].id == planId) {
               user.account.plans.pop(index)
