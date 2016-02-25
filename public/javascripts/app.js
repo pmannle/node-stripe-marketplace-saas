@@ -20,21 +20,21 @@ jQuery(function($) {
   if(cardWrapper.length > 0){
     $("input[name=plan]:radio").change(function (e) {
       var selectedPlan = JSON.parse(this.value);
-      if(selectedPlan.id == 'freeplan'){
-        cardWrapper.hide();
-      } else {
-        cardWrapper.show();
-        var selectedPlan = this.value;
-        cardFormAccountId.val(function() {
-          var planAccount = JSON.parse(selectedPlan);
-          return planAccount.accountId;
-        });
+      if(selectedPlan) {
+          cardWrapper.show();
+          var selectedPlan = this.value;
+          cardFormAccountId.val(function() {
+            var planAccount = JSON.parse(selectedPlan);
+            return planAccount.accountId;
+          });
       }
     });
     var checkedPlan = $("input:radio[name=plan]:checked").val();
-    var selectedPlan = JSON.parse(checkedPlan);
-    if(selectedPlan.id != 'freeplan') {
-      cardWrapper.hide();
+    if(checkedPlan) {
+      var selectedPlan = JSON.parse(checkedPlan);
+      if(selectedPlan) {
+        cardWrapper.hide();
+      }
     }
   }
 
@@ -48,7 +48,6 @@ jQuery(function($) {
 
     var checkedPlan = $("input:radio[name=plan]:checked").val();
     var selectedPlan = JSON.parse(checkedPlan);
-    if(selectedPlan.id != 'freeplan'){
       cardFormBtn.prop('disabled', true);
 
       cardNum = $('#card-num').val();
@@ -76,7 +75,6 @@ jQuery(function($) {
       });
 
       return false;
-    }
   });
 
 });

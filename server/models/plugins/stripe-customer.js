@@ -132,10 +132,10 @@ module.exports = exports = function stripeCustomer(schema, options) {
             user.stripe.connectedAccounts[accountId].card = card.last4;
             user.stripe.connectedAccounts[accountId].customer = customer;
 
-            user.save(function (err) {
+            //user.save(function (err) {
                 if (err) return cb(err);
                 return cb(null, customer.id);
-            });
+            //});
         };
 
         // check first if we have the connected merchant account
@@ -219,6 +219,32 @@ module.exports = exports = function stripeCustomer(schema, options) {
                 user.stripe.subscriptions = {};
             }
 
+            //var subscriptions = user.stripe.subscriptions;
+            //
+            //subscriptions[subscriptionId] = {
+            //    planId: plan.id, // connected account plan ID
+            //    accountId: plan.accountId, // connected account ID
+            //    // name: name, // connected account plan name
+            //    customerId: customerId, // this customers ID for the connected account
+            //    subscription: subscription
+            //};
+            //
+            //subscriptions['phil'] = {
+            //    planId: plan.id, // connected account plan ID
+            //    accountId: plan.accountId, // connected account ID
+            //    // name: name, // connected account plan name
+            //    customerId: customerId, // this customers ID for the connected account
+            //    subscription: subscription
+            //};
+
+            user.stripe.currentPlan = plan.id;
+
+
+
+
+
+            user.stripe.markModified('user.stripe');
+
             user.stripe.subscriptions[subscriptionId] = {
                 planId: plan.id, // connected account plan ID
                 accountId: plan.accountId, // connected account ID
@@ -227,7 +253,7 @@ module.exports = exports = function stripeCustomer(schema, options) {
                 subscription: subscription
             };
 
-            user.stripe.currentPlan = plan.id;
+            //user.stripe.subscriptions = subscriptions;
 
             user.save(function (err) {
                 if (err) return cb(err);
