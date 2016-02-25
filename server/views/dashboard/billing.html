@@ -38,6 +38,7 @@
         </div>
 
         {% for account in plans %}
+        {% set currentAccount = loop.key %}
 
         <form {% if !user.stripe.last4 %}id="cardForm" {% endif %} action="/user/plan" method="POST"
               data-merchant data-{{loop.key}}  class="form-horizontal">
@@ -55,7 +56,7 @@
                 <div class="col-sm-8 col-sm-offset-3">
                     <div class="radio">
                         <label>
-                            <input type="radio" {% if user.stripe.currentPlan== loop.key %}checked{% endif %}
+                            <input type="radio" {% if user.stripe.subscriptions[currentAccount].currentPlan == loop.key %}checked{% endif %}
                                    name="plan"
                                    value='{ "accountId": "{{plan.accountId}}", "id": "{{plan.id}}" }'
                                    data-toggle="radio">

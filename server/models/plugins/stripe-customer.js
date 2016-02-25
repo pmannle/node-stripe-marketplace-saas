@@ -7,19 +7,20 @@ var _ = require('lodash');
 var customerId;
 
 // if you are behind a proxy, uncomment these lines
- var ProxyAgent = require('https-proxy-agent');
+// var ProxyAgent = require('https-proxy-agent');
 
 module.exports = exports = function stripeCustomer(schema, options) {
     stripe = Stripe(options.apiKey);
 
     // if you are behind a proxy, uncomment these lines
-
+/*
     stripe.setHttpAgent(new ProxyAgent({
         //host: 'hybrid-web.global.blackspider.com',
         //port: 80,
         host: 'webproxy.amgen.com',
         port: 8080
     }));
+    */
 
 
     schema.add({
@@ -27,7 +28,7 @@ module.exports = exports = function stripeCustomer(schema, options) {
             platformCustomerId: String, // platform master account customer ID
             last4: String, // last four of current credit card
             default_source: String, // token for current default credit card
-            subscriptions: {}, // track subscriptions
+            subscriptions: Object, // track subscriptions
             connectedAccounts: {}, // track connected accounts, and connected customer Ids
             currentPlan: {}
         }
@@ -240,18 +241,15 @@ module.exports = exports = function stripeCustomer(schema, options) {
             user.stripe.currentPlan = plan.id;
 
 
-
-
-
-            user.stripe.markModified('user.stripe');
-
-            user.stripe.subscriptions[subscriptionId] = {
-                planId: plan.id, // connected account plan ID
+            user.stripe.subscriptions[plan.accountId] = {
+                currentPlan: plan.id, // connected account plan ID
                 accountId: plan.accountId, // connected account ID
                 // name: name, // connected account plan name
                 customerId: customerId, // this customers ID for the connected account
                 subscription: subscription
             };
+
+            user.stripe.markModified('stripe.subscriptions');
 
             //user.stripe.subscriptions = subscriptions;
 
