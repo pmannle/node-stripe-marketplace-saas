@@ -170,7 +170,6 @@ module.exports = exports = function stripeCustomer(schema, options) {
 
                 if (stripe_token) {
 
-
                     // this is the first time a user has entered their card, and selected a plan
                     // so we have the token available
                     user.setCard(stripe_token, function (err, default_source) {
@@ -272,26 +271,7 @@ module.exports = exports = function stripeCustomer(schema, options) {
                                 if (err) {
                                     cb(err);
                                 } else {
-
                                     subscriptionHandler(subscription)
-
-
-                                    //// create the subscription using connected account customer ID
-                                    //stripe.customers.createSubscription(
-                                    //    customerId,
-                                    //    {plan: plan.id},
-                                    //    {stripe_account: plan.accountId},
-                                    //    function (err, subscription) {
-                                    //        // asynchronously called
-                                    //        if (err) {
-                                    //            console.log(err);
-                                    //            console.log(subscription);
-                                    //            cb(err);
-                                    //        } else {
-                                    //            subscriptionHandler(subscription)
-                                    //        }
-                                    //    });
-
                                 }
                             });
 
@@ -338,6 +318,12 @@ module.exports = exports = function stripeCustomer(schema, options) {
 
     schema.methods.cancelStripe = function (cb) {
         var user = this;
+
+        // deleted all connected customers (which will also cancel subscriptions)
+
+        
+
+        // delete platform account customer
 
         if (user.stripe.platformCustomerId) {
             stripe.customers.del(

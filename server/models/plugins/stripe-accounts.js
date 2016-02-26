@@ -194,7 +194,7 @@ module.exports = exports = function stripeCustomer (schema, options) {
     });
   };
 
-  schema.methods.cancelStripe = function(cb){
+  schema.methods.cancelStripeAccount = function(cb){
     var user = this;
 
     if(user.stripe.accountId){
