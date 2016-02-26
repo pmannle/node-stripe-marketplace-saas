@@ -5,8 +5,10 @@ module.exports = {
   sessionSecret: process.env.SESSION_SECRET || 'change this',
 
   mailgun: {
-    user: process.env.MAILGUN_USER || '',
-    password: process.env.MAILGUN_PASSWORD || ''
+    user: process.env.MAILGUN_USER || 'postmaster@sandbox7fb3dd8753e446728824566da833f16a.mailgun.org',
+    password: process.env.MAILGUN_PASSWORD || 'password',
+    apiKey: process.env.MAILGUN_API_KEY || 'key-06b5e5245f74052fdae305818b3fb686',
+    domain: process.env.MAILGUN_DOMAIN || 'sandbox7fb3dd8753e446728824566da833f16a.mailgun.org'
   },
 
   stripeOptions: {

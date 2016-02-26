@@ -101,12 +101,12 @@ exports.postForgotPassword = function(req, res, next){
     function(token, user, done) {
       var transporter = nodemailer.createTransport(
         mailgunApiTransport({
-          apiKey: secrets.mailgun.password,
-          domain: secrets.mailgun.user
+          apiKey: secrets.mailgun.apiKey,
+          domain: secrets.mailgun.domain
         }));
       var mailOptions = {
         to: user.email,
-        from: 'noreply@node-stripe-membership.herokuapp.com',
+        from: 'postmaster@sandbox7fb3dd8753e446728824566da833f16a.mailgun.org',
         subject: 'Reset your password on node-stripe-membership.herokuapp.com',
         text: 'You are receiving this email because you (or someone else) have requested the reset of the password for your account.\n\n' +
           'Please click on the following link, or paste this into your browser to complete the process:\n\n' +
@@ -199,12 +199,12 @@ exports.postToken = function(req, res, next){
     function(user, done) {
       var transporter = nodemailer.createTransport(
         mailgunApiTransport({
-          apiKey: secrets.mailgun.password,
-          domain: secrets.mailgun.user
+          apiKey: secrets.mailgun.apiKey,
+          domain: secrets.mailgun.domain
         }));
       var mailOptions = {
         to: user.email,
-        from: 'noreply@node-stripe-membership.herokuapp.com',
+        from: secrets.mailgun.user,
         subject: 'Your node-stripe-membership.herokuapp.com password has been changed',
         text: 'Hello,\n\n' +
           'This is a confirmation that the password for your account ' + user.email + ' has just been changed.\n'
