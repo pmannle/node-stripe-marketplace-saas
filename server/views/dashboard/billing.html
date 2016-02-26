@@ -56,7 +56,10 @@
                 <div class="col-sm-8 col-sm-offset-3">
                     <div class="radio">
                         <label>
-                            <input type="radio" {% if user.stripe.subscriptions[currentAccount].currentPlan == loop.key %}checked{% endif %}
+                            <input type="radio"
+                                   {% if user.stripe.subscriptions[currentAccount] %}
+                                       {% if user.stripe.subscriptions[currentAccount].currentPlan == loop.key %} checked {% endif %}
+                                   {% endif %}
                                    name="plan"
                                    value='{ "accountId": "{{plan.accountId}}", "id": "{{plan.id}}" }'
                                    data-toggle="radio">
