@@ -37,7 +37,29 @@
       <div class="form-group">
         <label for="name" class="col-sm-3 control-label">Plan</label>
         <div class="col-sm-4">
-          <!--<p class="form-control-static">{{plans[user.stripe.currentPlan].name}} - ${{plans[user.stripe.currentPlan].amount / 100}}</p>-->
+
+          {% for account in user.stripe.subscriptions %}
+          {% set currentAccount = loop.key %}
+
+                <h5>Merchant ID: <a target="_blank"
+                                    href="https://dashboard.stripe.com/{{loop.key}}/test/plans">{{loop.key}}</a>
+                </h5>
+
+            {% for subscription in user.stripe.subscriptions[currentAccount] %}
+              {% if subscription.plan.name %}
+                  <div class="row">
+                    <div class="col-sm-8 col-sm-offset-3">
+                        <label>
+                          <span>{{subscription.plan.name}} - ${{subscription.plan.amount / 100}} </span>
+                        </label>
+                    </div>
+                  </div>
+              {% endif %}
+            {% endfor %}
+          {% endfor %}
+
+
+
         </div>
       </div>
       {% endif %}
