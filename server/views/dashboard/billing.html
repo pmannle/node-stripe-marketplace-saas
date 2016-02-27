@@ -57,8 +57,8 @@
                     <div class="radio">
                         <label>
                             <input type="radio"
-                                   {% if user.stripe.subscriptions[currentAccount] %}
-                                       {% if user.stripe.subscriptions[currentAccount].currentPlan == loop.key %} checked {% endif %}
+                                   {% if user.stripe.connectedAccounts[currentAccount] %}
+                                       {% if user.stripe.connectedAccounts[currentAccount].currentSubscription.currentPlan == loop.key %} checked {% endif %}
                                    {% endif %}
                                    name="plan"
                                    value='{ "accountId": "{{plan.accountId}}", "id": "{{plan.id}}" }'

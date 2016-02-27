@@ -13,14 +13,14 @@ module.exports = exports = function stripeCustomer(schema, options) {
     stripe = Stripe(options.apiKey);
 
     // if you are behind a proxy, uncomment these lines
-/*
-    stripe.setHttpAgent(new ProxyAgent({
-        //host: 'hybrid-web.global.blackspider.com',
-        //port: 80,
-        host: 'webproxy.amgen.com',
-        port: 8080
-    }));
-    */
+    /*
+     stripe.setHttpAgent(new ProxyAgent({
+     //host: 'hybrid-web.global.blackspider.com',
+     //port: 80,
+     host: 'webproxy.amgen.com',
+     port: 8080
+     }));
+     */
 
 
     schema.add({
@@ -28,8 +28,7 @@ module.exports = exports = function stripeCustomer(schema, options) {
             platformCustomerId: String, // platform master account customer ID
             last4: String, // last four of current credit card
             default_source: String, // token for current default credit card
-            subscriptions: Object, // track subscriptions
-            connectedAccounts: {}, // track connected accounts, and connected customer Ids
+            connectedAccounts: {}, // track connected accounts, and connected customer Ids, and subscriptions
             currentPlan: {}
         }
     });
@@ -49,13 +48,13 @@ module.exports = exports = function stripeCustomer(schema, options) {
 
         var plans = [];
 
-        user.find({'account.plans.0': { $exists: true } }, 'account', {lean: true}, function(err, accounts) {
+        user.find({'account.plans.0': {$exists: true}}, 'account', {lean: true}, function (err, accounts) {
             if (err) cb(err);
             //return accounts;
             var plans = {};
-            _.forEach(accounts, function(account) {
+            _.forEach(accounts, function (account) {
                 plans[account.account.accountId] = {};
-                _.forEach(account.account.plans, function(newplan, key) {
+                _.forEach(account.account.plans, function (newplan, key) {
                     //console.log(newplan);
                     plans[account.account.accountId][newplan.id] = newplan;
                 })
@@ -123,7 +122,7 @@ module.exports = exports = function stripeCustomer(schema, options) {
             customerId = customer.id;
 
             if (accountId in user.stripe.connectedAccounts) {
-                 user.stripe.connectedAccounts[accountId].customerId = customerId;
+                user.stripe.connectedAccounts[accountId].customerId = customerId;
             }
 
             var card = customer.cards ? customers.cards.data[0] : customer.sources.data[0];
@@ -132,6 +131,7 @@ module.exports = exports = function stripeCustomer(schema, options) {
             // add connected customer to connected account
             user.stripe.connectedAccounts[accountId].card = card.last4;
             user.stripe.connectedAccounts[accountId].customer = customer;
+            //user.stripe.connectedAccounts[accountId].subscription = {};
 
             user.stripe.markModified('stripe.connectedAccounts');
 
@@ -142,12 +142,12 @@ module.exports = exports = function stripeCustomer(schema, options) {
         };
 
         // check first if we have the connected merchant account
-        if( !user.stripe._doc.stripe.hasOwnProperty('connectedAccounts')) {
-                user.stripe.connectedAccounts = {};
-                user.stripe.connectedAccounts[accountId] = {
-                    customerId: null
-                };
-        } else if ( !user.stripe._doc.stripe.connectedAccounts.hasOwnProperty(accountId)) {
+        if (!user.stripe._doc.stripe.hasOwnProperty('connectedAccounts')) {
+            user.stripe.connectedAccounts = {};
+            user.stripe.connectedAccounts[accountId] = {
+                customerId: null
+            };
+        } else if (!user.stripe._doc.stripe.connectedAccounts.hasOwnProperty(accountId)) {
             user.stripe.connectedAccounts[accountId] = {
                 customerId: null
             };
@@ -155,9 +155,7 @@ module.exports = exports = function stripeCustomer(schema, options) {
 
 
         // do we already have a connected customer for this merchant accountID? If not, create them
-        //if(user.stripe.subscriptions) {
-            //if(user.stripe.subscriptions[accountId].customerId) {
-        if(user.stripe.connectedAccounts) {
+        if (user.stripe.connectedAccounts) {
             if (user.stripe.connectedAccounts[accountId].customerId) {
                 try {
                     return cb(null, user.stripe.connectedAccounts[accountId].customerId);
@@ -222,15 +220,9 @@ module.exports = exports = function stripeCustomer(schema, options) {
         // handle subscription response from stripe
         var subscriptionHandler = function (subscription) {
 
-            var subscriptionId = subscription.id;
+            var accountSubscription = user.stripe.connectedAccounts[plan.accountId];
 
-            if (!user.stripe.subscriptions) {
-                user.stripe.subscriptions = {};
-            }
-
-            user.stripe.currentPlan = plan.id;
-
-            user.stripe.subscriptions[plan.accountId] = {
+            var currentSubscription = {
                 currentPlan: plan.id, // connected account plan ID
                 accountId: plan.accountId, // connected account ID
                 // name: name, // connected account plan name
@@ -238,7 +230,15 @@ module.exports = exports = function stripeCustomer(schema, options) {
                 subscription: subscription
             };
 
-            user.stripe.markModified('stripe.subscriptions');
+            if (!accountSubscription.currentSubscription) {
+                // save new current subscription
+                user.stripe.connectedAccounts[plan.accountId]['currentSubscription'] = currentSubscription;
+            } else {
+                // replace existing current subscription
+                accountSubscription.currentSubscription = currentSubscription
+            }
+
+            user.stripe.markModified('stripe.connectedAccounts');
 
             user.save(function (err) {
                 if (err) return cb(err);
@@ -251,31 +251,30 @@ module.exports = exports = function stripeCustomer(schema, options) {
         var createSubscription = function (err, customerId) {
             if (err) return cb(err);
 
+            var currentAccount = user.stripe.connectedAccounts[plan.accountId];
+
             // retrieve any existing subscription for this connected account and un-subscribe
-            if (user.stripe.subscriptions && user.stripe.subscriptions[plan.accountId]) {
+            if (currentAccount && currentAccount.currentSubscription && currentAccount.currentSubscription.subscription.id) {
 
-                    if (user.stripe.subscriptions[plan.accountId].subscription.id) {
+                var currentSubscription = currentAccount.currentSubscription.subscription;
 
-                        var currentSubId = user.stripe.subscriptions[plan.accountId].subscription.id;
-                        var currentPlan = user.stripe.subscriptions[plan.accountId].subscription.plan.id;
-                        var currentSubCustomerId = user.stripe.subscriptions[plan.accountId].subscription.customer;
+                var currentSubId = currentSubscription.id;
+                var currentSubCustomerId = currentSubscription.customer;
 
-                        stripe.customers.updateSubscription(
-                            currentSubCustomerId,
-                            currentSubId,
-                            {plan: plan.id},
-                            {stripe_account: plan.accountId},
-                            function (err, subscription) {
-                                // asynchronously called
-                                console.log('update existing subscription');
-                                if (err) {
-                                    cb(err);
-                                } else {
-                                    subscriptionHandler(subscription)
-                                }
-                            });
-
-                    }
+                stripe.customers.updateSubscription(
+                    currentSubCustomerId,
+                    currentSubId,
+                    {plan: plan.id},
+                    {stripe_account: plan.accountId},
+                    function (err, subscription) {
+                        // asynchronously called
+                        console.log('update existing subscription');
+                        if (err) {
+                            cb(err);
+                        } else {
+                            subscriptionHandler(subscription)
+                        }
+                    });
 
             } else {
 
@@ -294,7 +293,6 @@ module.exports = exports = function stripeCustomer(schema, options) {
                             subscriptionHandler(subscription)
                         }
                     });
-
 
 
             }
@@ -320,8 +318,6 @@ module.exports = exports = function stripeCustomer(schema, options) {
         var user = this;
 
         // deleted all connected customers (which will also cancel subscriptions)
-
-        
 
         // delete platform account customer
 
