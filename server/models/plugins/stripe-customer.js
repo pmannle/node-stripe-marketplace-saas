@@ -46,8 +46,6 @@ module.exports = exports = function stripeCustomer(schema, options) {
     schema.statics.getPlans = function (cb) {
         var user = this;
 
-        var plans = [];
-
         user.find({'account.plans.0': {$exists: true}}, 'account', {lean: true}, function (err, accounts) {
             if (err) cb(err);
             //return accounts;
@@ -55,11 +53,9 @@ module.exports = exports = function stripeCustomer(schema, options) {
             _.forEach(accounts, function (account) {
                 plans[account.account.accountId] = {};
                 _.forEach(account.account.plans, function (newplan, key) {
-                    //console.log(newplan);
                     plans[account.account.accountId][newplan.id] = newplan;
                 })
             })
-            //console.log(plans);
             cb(err, plans);
         })
 
@@ -131,7 +127,6 @@ module.exports = exports = function stripeCustomer(schema, options) {
             // add connected customer to connected account
             user.stripe.connectedAccounts[accountId].card = card.last4;
             user.stripe.connectedAccounts[accountId].customer = customer;
-            //user.stripe.connectedAccounts[accountId].subscription = {};
 
             user.stripe.markModified('stripe.connectedAccounts');
 
@@ -319,18 +314,59 @@ module.exports = exports = function stripeCustomer(schema, options) {
 
         // deleted all connected customers (which will also cancel subscriptions)
 
-        // delete platform account customer
+        var confirmationMessages = '';
+        var numOfSubscriptions = _.keys(user.stripe.connectedAccounts).length;
+        var count = 0;
 
-        if (user.stripe.platformCustomerId) {
-            stripe.customers.del(
-                user.stripe.platformCustomerId
-            ).then(function (confirmation) {
+        var deletePlatformCustomer = function(customerId, cb) {
+
+            if (user.stripe.platformCustomerId) {
+                stripe.customers.del(
+                    user.stripe.platformCustomerId
+                ).then(function (confirmation) {
+                    cb(null, confirmationMessages);
+                }, function (err) {
+                    return cb(err);
+                });
+            } else {
                 cb();
-            }, function (err) {
-                return cb(err);
-            });
+            }
+
+        };
+
+        // does this user have an subscriptions?
+        if(numOfSubscriptions) {
+
+            _.forEach(user.stripe.connectedAccounts, function (connectedAccount, accountId) {
+                stripe.customers.del(
+                    connectedAccount.customerId,
+                    {stripe_account: accountId}
+                ).then(function (confirmation) {
+                    confirmationMessages += 'Subscription to merchant ' + accountId + ' cancelled.<br>';
+                }, function (err) {
+                    cb(err);
+                }).then(function () {
+
+                    count++;
+
+                    if (count == numOfSubscriptions) {
+
+                        // then delete platform account customer
+                        deletePlatformCustomer(customerId, cb);
+
+                    }
+                });
+            })
+
         } else {
-            cb();
+
+            // then delete platform account customer if they don't have any subscriptions
+            deletePlatformCustomer(customerId, cb);
+
         }
+
+
+
+
     };
 };

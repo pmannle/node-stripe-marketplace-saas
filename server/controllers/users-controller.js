@@ -83,12 +83,22 @@ exports.deleteAccount = function (req, res, next) {
     User.findById(req.user.id, function (err, user) {
         if (err) return next(err);
 
-        user.remove(function (err, user) {
-            if (err) return next(err);
-            user.cancelStripe(function (err) {
-                if (err) return next(err);
+        user.cancelStripe(function (err, message) {
+            if (err) {
+                req.flash('errors', {msg: err});
+                res.redirect(req.redirect.failure);
+            }
+
+            user.remove(function (err, user) {
+                if (err) {
+                    req.flash('errors', {msg: err});
+                    res.redirect(req.redirect.failure);
+                }
 
                 req.logout();
+                if (message) {
+                    req.flash('info', {msg: message});
+                }
                 req.flash('info', {msg: 'Your account has been deleted.'});
                 res.redirect(req.redirect.success);
             });
@@ -217,7 +227,7 @@ exports.getAccountPlans = function () {
     // return options.planData;
     //return Users.findWhere({ 'account.plans':  });
     //console.log(user)
-    User.find({'account.plans.0': { $exists: true } }), function(err, plans) {
+    User.find({'account.plans.0': {$exists: true}}), function (err, plans) {
         if (err) console.log(err);
         plans = plans;
     }
