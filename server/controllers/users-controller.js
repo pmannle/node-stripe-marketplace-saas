@@ -134,24 +134,6 @@ exports.postBilling = function (req, res, next) {
             res.redirect(req.redirect.success);
         });
 
-
-        //// set customer and card for user on connected account
-        //user.setSubscriptionCard(stripeToken, function (err) {
-        //    if (err) {
-        //        if (err.code && err.code == 'card_declined') {
-        //            req.flash('errors', {msg: 'Your card was declined. Please provide a valid card.'});
-        //            return res.redirect(req.redirect.failure);
-        //        }
-        //        req.flash('errors', {msg: 'An unexpected error occurred.'});
-        //        return res.redirect(req.redirect.failure);
-        //    }
-        //    req.flash('success', {msg: 'Subscription billing has been updated.'});
-        //
-        //    user.setSubscriptionCard
-        //    res.redirect(req.redirect.success);
-        //});
-
-
     });
 };
 

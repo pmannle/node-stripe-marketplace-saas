@@ -120,6 +120,10 @@ module.exports = function (app, passport) {
     setRedirect({auth: '/', success: '/account', failure: '/account'}),
     isAuthenticated,
     users.postAccount);
+  app.post('/user/account/billing',
+    setRedirect({auth: '/', success: '/account', failure: '/account'}),
+    isAuthenticated,
+    users.postBilling);
   app.post('/user/account/plan',
       setRedirect({auth: '/', success: '/account', failure: '/account'}),
       isAuthenticated,

@@ -8,16 +8,23 @@
       <h1>Home <small>/views/dashboard/index</small></h1>
     </div>
     {% include "../partials/flash.html" %}
-    {% if user.stripe.currentPlan == 'free' %}
+    {% if user.stripe.currentPlan == 'free' && user.account_type == 'customer' %}
     <div class="panel panel-default">
       <div class="panel-heading">Free Plan</div>
       <div class="panel-body">
         <p>Thanks for subscribing to the free plan! Enjoy this free content!</p>
       </div>
     </div>
-    {% else %}
     <div class="panel panel-default">
       <div class="panel-heading">More Plans (<a href="/billing">Choose a new plan</a>)</div>
+    </div>
+    {% endif %}
+    {% if user.account_type == 'merchant' %}
+    <div class="panel panel-default">
+      <div class="panel-heading">Merchant Dashboard</div>
+      <div class="panel-body">
+        <p>Create a plan and start selling subscriptions! Visit your <a href="/account">Account Page</a></p>
+      </div>
     </div>
     {% endif %}
 

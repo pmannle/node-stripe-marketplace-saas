@@ -17,9 +17,9 @@ exports.getHome = function(req, res, next){
     error = errorFlash[0];
   }
 
-  User.getPlans(function(error, plans) {
-      res.render(req.render, {user: req.user, form: form, error: error, plans: plans});
-      });
+
+      res.render(req.render, {user: req.user, form: form, error: error});
+
 
 
 

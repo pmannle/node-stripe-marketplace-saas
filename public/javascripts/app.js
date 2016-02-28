@@ -2,6 +2,7 @@ jQuery(function($) {
 
   var cardWrapper = $('#cardWrapper'),
   cardForm = $('#cardForm'),
+  merchantForm = $('#merchantForm'),
   formError = $('#cardFormError'),
   cardFormBtn = cardForm.find('button'),
   cardFormAccountId = cardForm.find("input[name='accountId']");
@@ -75,6 +76,45 @@ jQuery(function($) {
       });
 
       return false;
+  });
+
+  merchantForm.submit(function(e) {
+    e.preventDefault();
+
+    var cardNum,
+        cardMonth,
+        cardYear,
+        cardCVC;
+
+    //var checkedPlan = $("input:radio[name=plan]:checked").val();
+    //var selectedPlan = JSON.parse(checkedPlan);
+    cardFormBtn.prop('disabled', true);
+
+    cardNum = $('#card-num').val();
+    cardMonth = $('#card-month').val();
+    cardYear = $('#card-year').val();
+    cardCVC = $('#card-cvc').val();
+
+    Stripe.card.createToken({
+      number: cardNum,
+      exp_month: cardMonth,
+      exp_year: cardYear,
+      cvc: cardCVC
+    }, function(status, response) {
+      if (response.error) {
+        formError.find('p').text(response.error.message);
+        formError.removeClass('hidden');
+        merchantForm.find('button').prop('disabled', false);
+      } else {
+        var token = response.id;
+        console.log('got token: ' + token);
+        merchantForm.append($('<input type="hidden" name="stripeToken" />').val(token));
+        merchantForm.get(0).submit();
+      }
+
+    });
+
+    return false;
   });
 
 });

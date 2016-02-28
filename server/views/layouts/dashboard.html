@@ -28,20 +28,20 @@
             <li {%if path == '/profile'%}class="active"{%endif%}><a href="/profile">Profile</a></li>
 
             <!-- only show billing view to customers -->
-            {% if user.stripe.platformCustomerId %}
+            {% if user.account_type == 'customer' %}
             <li {%if path == '/billing'%}class="active"{%endif%}><a href="/billing">Billing</a></li>
             {% endif %}
 
             <!-- only show account view to merchants -->
-            {% if user.account.accountId %}
+            {% if user.account_type == 'merchant' %}
             <li {%if path == '/account'%}class="active"{%endif%}><a href="/account">Account</a></li>
             {% endif %}
             <li><a href="https://github.com/eddywashere/node-stripe-membership-saas">Fork Me</a></li>
           </ul>
           <ul class="nav navbar-nav navbar-right">
             <li style="margin-top: 15px"><span class="label label-success">
-              {% if user.stripe.platformCustomerId %}Customer View{% endif %}
-              {% if user.account.accountId %}Merchant View{% endif %}
+              {% if user.account_type == 'customer' %}Customer View{% endif %}
+              {% if user.account_type == 'merchant' %}Merchant View{% endif %}
               </span>
             </li>
             <li><a href="/logout">Logout</a></li>
