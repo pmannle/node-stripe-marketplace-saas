@@ -1,6 +1,15 @@
-# Node Stripe Membership SaaS
+# Node Stripe Membership SaaS with Connected Marketplace
 
-This project is a boilerplate express app for creating a membership/subscription site with [Stripe](https://stripe.com), [Mailgun](https://mailgun.com/signup), mongodb and swig. Inspired by [sahat/hackathon-starter](https://github.com/sahat/hackathon-starter) and [RailsApps/rails-stripe-membership-saas](https://github.com/RailsApps/rails-stripe-membership-saas). It also handles stripe webhooks.
+This project is a boilerplate express app for creating a membership/subscription Marketplace  with [Stripe](https://stripe.com), [Mailgun](https://mailgun.com/signup), mongodb and swig. Inspired by [sahat/hackathon-starter](https://github.com/sahat/hackathon-starter) and [RailsApps/rails-stripe-membership-saas](https://github.com/RailsApps/rails-stripe-membership-saas). It also handles stripe webhooks.
+
+It is a frontend for a Stripe Connected Marketplace, and allows you to:
+
+- create new merchant accounts
+- allows merchants to create their own subscription plans
+
+- create new customer accounts
+- allows customers to subscribe to merchant plans
+- allows customers to update subscriptions
 
 Check out the [demo](https://node-stripe-membership-saas.herokuapp.com/dashboard)!
 
