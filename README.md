@@ -6,7 +6,6 @@ It is a frontend for a Stripe Connected Marketplace, and allows you to:
 
 - create new merchant accounts
 - allows merchants to create their own subscription plans
-
 - create new customer accounts
 - allows customers to subscribe to merchant plans
 - allows customers to update subscriptions
