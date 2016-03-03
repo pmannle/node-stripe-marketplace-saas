@@ -12,8 +12,8 @@ It is a frontend for a Stripe Connected Marketplace, and allows you to:
 
 Check out the [demo](https://node-stripe-marketplace-app.herokuapp.com/)!
 
-<a href="https://node-stripe-membership-saas.herokuapp.com/dashboard">
-    <img src="https://a16545fb495c8760fb33-4cec33efbe2744e99ba863e52edb2075.ssl.cf2.rackcdn.com/stripe-membership-app-screenshot.png">
+<a href="https://node-stripe-marketplace-app.herokuapp.com">
+    <img src="https://raw.githubusercontent.com/pmannle/node-stripe-marketplace-saas/master/merchant-account-page.png">
 </a>
 
 ### System Requirements
