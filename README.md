@@ -10,7 +10,7 @@ It is a frontend for a Stripe Connected Marketplace, and allows you to:
 - allows customers to subscribe to merchant plans
 - allows customers to update subscriptions
 
-Check out the [demo](https://node-stripe-membership-saas.herokuapp.com/dashboard)!
+Check out the [demo](https://node-stripe-marketplace-app.herokuapp.com/)!
 
 <a href="https://node-stripe-membership-saas.herokuapp.com/dashboard">
     <img src="https://a16545fb495c8760fb33-4cec33efbe2744e99ba863e52edb2075.ssl.cf2.rackcdn.com/stripe-membership-app-screenshot.png">
@@ -39,14 +39,19 @@ Note: Stripe webhooks can be recieved at `https://your-url.com/stripe/events`.
 ### Heroku Deployment
 
 ```
-heroku create your-awesome-saas-product
-heroku addons:add mongohq
+heroku create your-stripe-marketplace
+heroku addons:create mongolab
 heroku config:set SESSION_SECRET='your_secret';
 heroku config:set STRIPE_KEY='sk_test_example'
 heroku config:set STRIPE_PUB_KEY='pk_test_example'
 heroku config:set MAILGUN_USER='example.org'
 heroku config:set MAILGUN_PASSWORD='key-secret'
+heroku config:set MAILGUN_API_KEY='your-key'
+heroku config:set MAILGUN_DOMAIN='your_sandbox_domain'
 heroku config:set GOOGLE_ANALYTICS='UA-XXXXXX-1'
 ```
 
-Want add a heroku deploy button? Pull requests welcome :]
+Then, push your code to heroku:
+```
+git push heroku master
+```
